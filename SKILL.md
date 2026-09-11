@@ -39,6 +39,33 @@ A workspace may add an assignment step within dispatch (binding a
 handle to an isolated checkout, a machine, a queue). That is project law,
 not Tugboat.
 
+## Dispatch contract
+
+The Mind does not brief sub-agents in chat. Chat is not the assignment.
+
+1. Record the work in Vivi as a **task** (or a **need** until it is lowered).
+2. Spawn the role with a **pointer only**: role id + handle id.
+3. The worker loads its charter and that handle, follows this skill, and
+   reports through the same handle.
+
+The entire spawn / opening prompt is this shape. Nothing else:
+
+```text
+You are role <role>.
+Load charter: vivi role show <role> --project $ROOT
+Load task: vivi task show <handle> --project $ROOT
+Unit resume only. Follow Tugboat. Report through that handle. Stop.
+```
+
+Do not paste the task body, the goal, the delivery spec, a narrative brief,
+or “here is what I need you to do” into the spawn prompt. If a fact belongs
+in the assignment, it is already in the Vivi record. If it is not in the
+record, file it there first, then spawn. A worker that needs a missing fact
+refuses; it does not wait for a chat novel.
+
+The same pointer is the resume prompt. Re-spawn on an open handle uses the
+same four lines and the same handle. Do not add a recap of prior chat.
+
 ## Boot modes
 
 Compaction and other interruptions are **role-blind** at the host layer. The
@@ -135,9 +162,10 @@ schedulers should still be up — that is [Warm boot](#warm-boot-mind-only-post-
    session** to reconstruct routing; a resumed seat gets only its **own
    delegated session** (file path + line range, never an inlined transcript).
 7. **Resume one seat at a time.** Re-spawn each seat on its existing open
-   handle; no new record is needed. Point the seat at the existing
-   WIP and the exact validation in the task body. Resume in dependency order;
-   do not dispatch two seats into the same dirty tree at once.
+   handle with the [dispatch-contract](#dispatch-contract) pointer; no new
+   record is needed. The task body already names write scope and validation.
+   Do not paste WIP or a recap into the spawn prompt. Resume in dependency
+   order; do not dispatch two seats into the same dirty tree at once.
 8. **Loops.** The only scheduled loop is `cadence_tick` (see
    [Cadence](#cadence)). It is **off by default**: the Mind does not arm or
    re-arm it. Verify the host's armed-loop list against the current Mind memo of the
@@ -352,14 +380,16 @@ The test is not "is this on a list" but **"whose context should this output live
 ### Rule 2: Every active assignment has a durable handle and a live owner
 
 Assignments, questions, reports, decisions, and corrections live in Vivi
-handles. Chat and runtime messages are pointers only.
+handles. Chat and runtime messages are pointers only. The spawn prompt is
+the [dispatch contract](#dispatch-contract): role id, handle id, load
+charter, load task, stop. It is not a briefing.
 
 **Dispatch:** create or locate one handle, then start one role process for that
 handle in the same turn. Prefer a class mailbox (`hand`, `planner`, `auditor`)
 when workers share a charter. Spawn with full tool access when the role
 needs shell (`vivi`, git, tests). A read-only spawn that strips the shell
 is a defect. A project may add an assignment step for checkout, machine,
-or queue binding.
+or queue binding. Do not put assignment text in the spawn prompt.
 
 **Execution state:** running work has a verified live process attached to its
 handle. An executable open handle without a live owner is spawn debt. When a
@@ -575,11 +605,13 @@ Each role is a Vivi identity with a mailbox and role record.
 
 Auditor, Planner, Hater, Head, and Cadence seats carry **full standing procedure on the Vivi role charter**. The Mind does not re-invent their job in the task body.
 
-On every spawn or [unit resume](#unit-resume-worker-seats-only), the role (or the Mind boot pointer) must include:
+On every spawn or [unit resume](#unit-resume-worker-seats-only), the Mind
+sends only the [dispatch-contract](#dispatch-contract) pointer. The worker
+then loads standing law from the charter:
 
 ```bash
 vivi role show <role> --project "$ROOT"
-# follow the role charter body for standing law
+vivi task show <handle> --project "$ROOT"
 ```
 
 | Seat | Charter must include | Task body must include |
@@ -599,7 +631,11 @@ All role reports go to the Mind. If a role needs something from another role, it
 The Mind uses the full role system through Vivi:
 
 - Roles have memos, capacity records, and mailboxes. Capacity includes `provider`, `model`, and `thinking`. The Vivi `model` field is a **band** (`P2-S0`), not a slug. `provider` and `thinking` stay empty. The band is not liveness.
-- File **tasks** to the seat that will execute, then **spawn** that role. Put clear scope and instructions in the task body or a linked file. File **needs** and **wants** to the Mind (or the backlog owner) when discovering work; the Mind lowers them into tasks before spawn.
+- File **tasks** to the seat that will execute, then **spawn** that role with
+  the [dispatch-contract](#dispatch-contract) pointer. Put scope and
+  instructions in the task body or a linked file — never in the spawn
+  prompt. File **needs** and **wants** to the Mind (or the backlog owner)
+  when discovering work; the Mind lowers them into tasks before spawn.
 - Hands execute and report back. They close tasks and reply with their result.
 - Review is optional in the simple loop but required when the planning or wave protocol calls for it.
 - Planners lower goals. A raw goal goes to a Planner, not a Hand.
@@ -754,8 +790,9 @@ synchronously inside the worker's own session.
 ## Handoff protocol
 
 Dispatch under Rule 2, let the role execute, and require its report through the
-same handle. Full instructions live in the Vivi item; the runtime prompt is a
-short pointer to the role charter and handle.
+same handle. Full instructions live in the Vivi item. The runtime prompt is
+only the [dispatch contract](#dispatch-contract). A long spawn prompt is a
+protocol defect.
 
 ### Mind to role
 
@@ -768,7 +805,7 @@ The Mind creates one of these items:
 - A **want** for deferred backlog work until a precondition or spare capacity.
 - **Mail** for a question, report, or other communication.
 
-The Mind sends the item to the correct class role, such as `hand`, `planner`, `auditor`, `head-ceo`, `hater`, or `operator`. The Mind must not widen, replace, or add requirements through chat.
+The Mind sends the item to the correct class role, such as `hand`, `planner`, `auditor`, `head-ceo`, `hater`, or `operator`. The Mind must not widen, replace, or add requirements through chat or through the spawn prompt. If the assignment is incomplete, fix the Vivi record and spawn again. Do not “clarify” in the opening message.
 
 Do not route roles by implication. Create a separate Vivi handle for each transition in the implementation flow:
 
@@ -787,16 +824,19 @@ The Planner produces the delivery artifact; it does not file Hand tasks. The Min
 
 Every implementation handoff must identify its current state and predecessor handle. A Hand task must point to the delivery-audit result; a phase audit task must point to the aggregate Hand commit receipts and frozen range; a repair task must point to the Auditor's finding. This makes the lineage reconstructable from Vivi without making each unit wait for review.
 
-A Hand's task body is a **pointer**, not a delivery reprint:
+A Hand's task body is labeled fields, not a narrative and not a spawn brief:
 
 - `goal` or `delivery`: path to the goal/spec;
 - `unit`: the exact reference id in that document;
+- `predecessor`: prior handle and commit, when lineage matters;
 - `write_scope`: files this logical change may touch;
 - **the edit**: which function/seam changes, in one or two lines — not a research question;
 - `done_when`: acceptance for **this** change;
-- optional `sanity`: one focused check of the touched surface.
+- optional `sanity`: one focused check of the touched surface;
+- `do_not`: surfaces and units this bag must not touch;
+- optional `check-first`: if already true, close with evidence.
 
-The pointer names work that can **start as an edit**. Planning already paid for discovery. A bag that asks the Hand to re-derive architecture, re-read the campaign, or "figure out how this compiles" is unfinished lowering, not a Hand assignment.
+The worker reads those fields from `vivi task show`. The spawn prompt does not repeat them. A bag that asks the Hand to re-derive architecture, re-read the campaign, or "figure out how this compiles" is unfinished lowering, not a Hand assignment.
 
 Do **not** put the project's integration, suite, or release gate on the Hand. Do not paste the delivery spec. Do not assign a whole theme because landing must be atomic — file the integration gate separately.
 
@@ -804,7 +844,8 @@ If the body is missing a pointer, covers several families, assigns a project-wid
 
 ### Role to Mind
 
-Every role reports to the Mind through the handle it received.
+Every role reports to the Mind through the handle it received. Tone matches
+the record: labeled fields and short receipts, not essays.
 
 A Hand completes a task by:
 
@@ -813,16 +854,24 @@ A Hand completes a task by:
 3. After the last product edit: optional one sanity check of this change (Rule 6 V3). Not a project-wide gate.
 4. Committing its work.
 5. Closing the task with `vivi task done`.
-6. Replying: `done handle <handle>. commit abc123. unit <id>.`
+6. Replying one line: `done handle <handle>. commit abc123. unit <id>.`
 7. **Stopping** (Rule 6 V4). The seat turns over. No further tests after done.
 
-An Auditor closes its review task with one of these verdicts: `clean_pass`, `residual`, or `block_ship`. It also replies with the finding.
+A blocked Hand is also one line (what blocked, what follow-up). If the bag is
+wrong, file a **need** with must-do / repro / boundary, then stop.
 
-For a delivery audit, use `admitted` or `revise` instead. The Auditor must state the artifact or frozen range reviewed, the exact paths and authority used, the validation evidence (for implementation audit: mostly **receipt and source honesty**, not a fresh full suite), and any required follow-up. `admitted` means the Mind may create Hand tasks; it is not implementation approval.
+An Auditor closes with `clean_pass`, `residual`, or `block_ship` (delivery:
+`admitted` or `revise`). The reply on the assignment handle is a **doorbell**:
+verdict, frozen range, mail handle of the full report if the body is long.
+Put the YAML report on that handle when it fits, or as a second mail to Mind
+that cites the assignment handle. Do not leave the only evidence in the host
+completion text.
 
 A Hater replies with a hostile-cold-read report and `authority: none`. It does not add merit classifications or suggested fixes.
 
-A Head reports evidence, inferences, unknowns, and risks by replying to the Mind. It does not report directly to the operator.
+A Head answers a named fork with a **ruling** (option letter + next seat), not
+a strategy essay. Discovering a defect is a **need** to Mind, not a memo. It
+does not report directly to the operator.
 
 Cadence reports by filing **mail** to Mind (see [Cadence](#cadence)). A tick
 has no inbound task. The host completion text names the mail handle. Mind
@@ -854,38 +903,48 @@ The role states why it refused. The Mind then corrects the process by routing th
 ### Handoff example
 
 ```bash
-# Planner has produced delivery unit U-17; Auditor has admitted it.
-# 1) File first — this mints the handle.
+# 1) File the work in Vivi first — this mints the handle.
 vivi task send --project "$ROOT" \
   --from mind --to hand \
-  --subject 'implement U-17: parser input validation' \
+  --subject 'unit U-17: parser input validation' \
   --body 'goal: docs/factory/…/GOAL.md
 unit: U-17
+predecessor: task-handle-prior commit abc111
 write_scope: crates/parser/src/validate.rs, crates/parser/tests/validate.rs
+edit: reject malformed parser input at validate.rs::parse_input
 done_when: malformed parser input is rejected with the expected error
-sanity: cargo test -p parser --test validate'
+sanity: cargo test -p parser --test validate
+do_not: lexer; release gate
+check-first: if already true, close with evidence'
 
-# 2) Spawn role `hand` pointed at THAT handle.
-# Filing does NOT start a Hand. One spawn, one handle.
-# You are role hand. Load charter: vivi role show hand --project "$ROOT".
-# Load task: vivi task show task-handle-abc --project "$ROOT".
-# Unit resume only (not Mind Warm/Cold boot). Implement U-17. Commit. Stop.
-
-# Head / council example (dispatch under Rule 2):
-# vivi task send --from mind --to head-cto --subject 'CTO range review' --body '...'
-# Then spawn head-cto pointing at that handle.
+# 2) Spawn with the pointer only. Filing does not start a Hand.
+# Entire opening prompt:
+# You are role hand.
+# Load charter: vivi role show hand --project "$ROOT"
+# Load task: vivi task show task-handle-abc --project "$ROOT"
+# Unit resume only. Follow Tugboat. Report through that handle. Stop.
 
 vivi task done --project "$ROOT" --for hand task-handle-abc \
-  --note 'Implemented and validated. commit def456. paths crates/parser/src/validate.rs crates/parser/tests/validate.rs.'
+  --note 'commit def456. paths crates/parser/src/validate.rs crates/parser/tests/validate.rs.'
 
 vivi mail reply task-handle-abc --project "$ROOT" \
   --from hand \
-  --body 'done handle task-handle-abc. commit def456. successors may proceed. paths crates/parser/src/validate.rs crates/parser/tests/validate.rs.'
+  --body 'done handle task-handle-abc. commit def456. unit U-17.'
 
 vivi task send --project "$ROOT" \
   --from mind --to auditor \
   --subject 'audit phase P-4 implementation' \
-  --body 'audit_mode: evidence_honesty. predecessors: task-handle-abc, task-handle-xyz. base: abc111. head: phase-tip-789. paths: crates/parser/src/validate.rs, crates/parser/tests/validate.rs, crates/parser/src/other.rs. receipts: hand closeout notes on those handles. do_not: re-run full ladder or real-device suite. re_execute: none unless block_ship cannot be settled from artifacts. verdict: clean_pass | residual | block_ship.'
+  --body 'audit_mode: evidence_honesty
+trigger: phase
+predecessors: task-handle-abc, task-handle-xyz
+base: abc111
+head: phase-tip-789
+paths: crates/parser/src/validate.rs, crates/parser/tests/validate.rs
+receipts: hand closeout notes on those handles
+re_execute: none
+verdict: clean_pass | residual | block_ship
+do_not: implement; full ladder'
+# Spawn auditor with the same four-line pointer, handle of this task.
 ```
 
 ## Feature lifecycle and phase review
@@ -1371,7 +1430,10 @@ vivi task dump --project "$ROOT" --status open
   cadence-dependent.
 - **Verification economy (Rule 6):** one owner per proof kind; Hand implements and turns over; project-defined seats own ladders; Mind paper reconcile; Auditor does not replay suites; Heads do not re-verify.
 - **Seat turnover (Rule 5):** a Hand assignment is capital on a shelf until done; size one logical change so seats turn over. Do not maximize throughput by stuffing a theme into one bag, and do not mint micro-units whose process exceeds the product.
-- **Vivi-first communication:** keep routing on the board, not in chat.
+- **Vivi-first communication:** keep routing on the board, not in chat. Spawn
+  prompts are the [dispatch contract](#dispatch-contract) only.
+- **Dispatch contract:** file the work, then spawn role + handle. No narrative
+  brief in the opening prompt. Worker reports through the same handle.
 - **Blocker routing (Rule 4):** recoverable blockers become live Hand, Planner, Head, or project-integration assignments immediately; block only their exact dependency boundary and keep unaffected seats moving. A fleet stop requires a proven operator/external deadlock, not uncertainty.
 - **Seat saturation (Rule 5):** dispatch instead of idling when honest work exists. Fill every pool (planning, implementation, audit) while READY work exists.
 - **Head boundary:** Heads advise. They do not lower goals or implement.
@@ -1383,6 +1445,11 @@ vivi task dump --project "$ROOT" --status open
 - **The Mind implements:** The Mind sees a bug and fixes it, runs the failing test, or applies the formatter "just to check" instead of filing a task for the right seat. Deep analysis done in the Mind's own context instead of delegated to a Head, Planner, or Auditor is the same defect (Rule 1).
 - **Stale goal status:** Implementation landed, but the goal/campaign document still reads `planned`/`draft` because the Mind never advanced the status line. The Mind owns the status lifecycle; the goal inventory and the board must agree. The inverse — the Mind rewriting goal content itself instead of delegating to a Planner/Head — is the same defect from the other side.
 - **No board item:** Work is assigned through chat without first creating a task, need, want, or mail item.
+- **Narrative spawn prompt:** The Mind pastes the goal, the delivery spec, or a
+  “here is what I need you to do” brief into the sub-agent opening message.
+  That text belongs in the Vivi task. The spawn prompt is four lines: role,
+  charter, handle, stop. Clarifying in chat instead of fixing the record is
+  the same defect.
 - **Sleeping with open work:** The Mind claims the board is quiet while open **needs**, READY tasks, or orphan task bags remain.
 - **Want before need:** Draining the want backlog (nice-to-have / preconditioned work) while open needs sit without disposition.
 - **Need means "I need a decision":** Treating need as a question form. Questions and human decisions are **mail**; must-do work is a **need**; deferred work is a **want**; active assignment is a **task**.
