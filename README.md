@@ -2,7 +2,8 @@
 
 Lightweight multi-agent operating protocol: one **Mind** routes work, **Hands**
 implement, **Auditors** and **Heads** review, **Cadence** advises. The durable
-record is [Vivi](https://github.com/ianzepp/vivarium). The host starts
+record is [Vivi](https://github.com/ianzepp/vivarium). They go together.
+Tugboat is the protocol; Vivi is the board and the CLI. The host starts
 processes. Tugboat does not.
 
 This is the protocol the author actually runs. [Fleet](https://github.com/ianzepp/fleet)
@@ -27,7 +28,14 @@ git clone https://github.com/ianzepp/tugboat.git
 ln -s "$(pwd)/tugboat" ~/.agents/skills/tugboat
 ```
 
-You also need the `vivi` CLI. See [vivarium](https://github.com/ianzepp/vivarium).
+You also need Vivi. Install the CLI from
+[vivarium](https://github.com/ianzepp/vivarium) and point a skill directory at
+that repo's [`skills/vivi`](https://github.com/ianzepp/vivarium/tree/main/skills/vivi):
+
+```sh
+git clone https://github.com/ianzepp/vivarium.git
+ln -s "$(pwd)/vivarium/skills/vivi" ~/.agents/skills/vivi
+```
 
 ## What Tugboat is not
 

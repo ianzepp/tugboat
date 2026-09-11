@@ -11,14 +11,20 @@ Tugboat does **not** define a project's test ladder, scripts, checkout
 isolation, or seat roster. Those live in the project's own agents/charter
 docs. Do not invent them from this skill.
 
-Tugboat uses the **Vivi** CLI as the durable record (tasks, needs, wants,
-mail, roles, memos, goals, graphs). Install Vivi from
-[vivarium](https://github.com/ianzepp/vivarium). The host starts processes.
+Tugboat uses **Vivi** as the durable record (tasks, needs, wants, mail,
+roles, memos, goals, graphs). They go together: Tugboat is the operating
+protocol; Vivi is the board and the CLI. The host starts processes.
 Tugboat does not.
+
+Install the CLI from [vivarium](https://github.com/ianzepp/vivarium). Agent
+CLI law lives in that repo's skill,
+[`skills/vivi/SKILL.md`](https://github.com/ianzepp/vivarium/blob/main/skills/vivi/SKILL.md).
+Load that skill for flags, kinds, absorb, and email. This document does not
+replace it. Verify live `vivi --help` before exact flags.
 
 Optional companions, if the workspace has them: a transcript search tool, a
 model inventory, a polish helper, a hater skill. None of those are required
-to run the loop.
+to run the loop. Vivi is required.
 
 ## The operating model
 
@@ -1328,6 +1334,11 @@ the work itself.
 
 ## Vivi command reference
 
+This is Tugboat's working subset, not a second Vivi manual. For kinds, absorb,
+roles, goals, graphs, and email, load the Vivi skill
+([`skills/vivi/SKILL.md`](https://github.com/ianzepp/vivarium/blob/main/skills/vivi/SKILL.md))
+and current `vivi --help`.
+
 Set `ROOT` to the project root and use `--project "$ROOT"`. Prefer class
 identity tokens such as `mind`, `operator`, `hand`, `planner`, `auditor`,
 `cadence`, and `head-ceo`. Numbered names are legacy addresses.
@@ -1416,7 +1427,10 @@ vivi task dump --project "$ROOT" --status open
 ## What Tugboat keeps
 
 - **Boot modes:** Cold boot (true restart — includes Mind absorb + cleanup of stale memos/tasks/etc.), Warm boot (Mind-only post-compaction reorient **plus required Auditor + CTO reacquaintance**), Unit resume (workers). Compaction is role-blind; seats pick the mode by identity + live infrastructure.
-- **Vivi:** tasks (active assignment), needs (priority backlog / must-do soon), wants (deferred backlog), mail (communication), roles, memos, and the board — the **record**, not the executor (Rule 2). Mind drains needs before wants; dispatch of work = task + spawn.
+- **Vivi:** required companion. Tasks, needs, wants, mail, roles, memos, and
+  the board are the **record**, not the executor (Rule 2). CLI law is the
+  [Vivi skill](https://github.com/ianzepp/vivarium/blob/main/skills/vivi/SKILL.md).
+  Mind drains needs before wants; dispatch of work = task + spawn.
 - **Role hierarchy:** Mind, Planner, Hand, Auditor, optional Hater, Head, Cadence, and `operator@`. A project may add specialized seats; Tugboat does not assume they exist.
 - **Model P + S:** Vivi `model` is a band (`P2-S0`). Mind resolves it to a slug from the host's model inventory. Not planning P1/P2/P3.
 - **Offline fallback:** WAN down → new spawns use the host's local model. Recheck each Mind turn. Do not interrupt in-flight seats.
