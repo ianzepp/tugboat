@@ -13,8 +13,8 @@ overhead left too little room for product work.
 
 ## Start here
 
-- [`SKILL.md`](SKILL.md) — the whole protocol: boot modes, six rules, roles,
-  cadence, board kinds, anti-patterns
+- [`SKILL.md`](SKILL.md) — the whole protocol: operating modes (Mind / Direct),
+  boot modes, six rules, roles, cadence, board kinds, anti-patterns
 - [`scripts/check-task-body.py`](scripts/check-task-body.py) — optional gate
   that a Hand task body is a pointer to one logical change
 

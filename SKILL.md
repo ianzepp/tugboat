@@ -1,6 +1,6 @@
 ---
 name: tugboat
-description: Lightweight multi-agent coordination for small models running Mind/Hand loops, a cadence executive-officer seat, and optional cold-read Haters through sub-agents. Uses Vivi for mail, memos, tasks, assignments, and roles with a compact operational protocol.
+description: Lightweight multi-agent coordination for small models running Mind/Hand loops, a cadence executive-officer seat, and optional cold-read Haters through sub-agents. Two operating modes (Mind default, Direct). Uses Vivi for mail, memos, tasks, assignments, and roles with a compact operational protocol.
 ---
 
 # Tugboat
@@ -44,6 +44,71 @@ to a later Mind turn.
 A workspace may add an assignment step within dispatch (binding a
 handle to an isolated checkout, a machine, a queue). That is project law,
 not Tugboat.
+
+That graph is **Mind mode** (the default). [Operating modes](#operating-modes)
+choose whether this conversation implements or only routes.
+
+## Operating modes
+
+Orthogonal to [boot modes](#boot-modes). Boot modes recover identity and
+infrastructure. Operating modes choose **who does product work**.
+
+| Mode | Who implements | Who keeps books / verifies | Bias | Default? |
+| --- | --- | --- | --- | --- |
+| **Mind** | Hands and other worker seats | Mind (route, admit, reconcile) | Correctness | Yes |
+| **Direct** | Mind | Sub-agents (verification, receipts, board paper) | Working software first | No — operator names it |
+
+Unset is **Mind**. When the operator names a switch, record
+`operating_mode: mind|direct` in the Mind memo and keep it until they name
+the other. Warm/Cold boot re-read that memo. Do not infer Direct from a
+short ask.
+
+### Mind (default)
+
+The rest of this skill, as written. Mind routes. Hands implement. Planning,
+delivery audit, careful assignment, completion reconcile, and phase audit
+run before a need is treated as done. Tests and end-to-end proof gate
+progression. Correctness over wall clock.
+
+### Direct
+
+The inverse. Mind does the product work in this conversation. Sub-agents
+do bookkeeping and verification, not the feature itself.
+
+```text
+Operator → Mind (implements) → verifier / bookkeeper seats → Mind
+```
+
+**Goal:** get the function working. A red test, a broken adjacent path, or
+an ugly seam is accepted until the thing exists. Then iterate. Hardening
+and the Mind-mode cycle come after, or when the operator switches back.
+
+**Not a chainsaw.** Prefer the smallest change that proves the function.
+Do not delete foreign dirt, rewrite unrelated modules, or clean up while
+passing through. Wrong approach is fine; scattershot destruction is not.
+If it is the wrong approach, change it and keep going.
+
+**Still binds:** boot modes; Vivi as the record for spawned work (Rule 2);
+the [dispatch contract](#dispatch-contract) for those spawns; foreign-dirt
+A/B/C; git lock; spawn verifiers async and do not park this turn on them.
+
+**Does not bind while Direct is on:** Rule 1's ban on Mind implementing;
+Rule 3's "Mind does not commit" (Mind commits its own Direct work);
+Rule 4's "Mind does not fix product" (Mind fixes it); planning, delivery
+audit, and wave freeze as a start gate; green tests or end-to-end as a
+progress gate; waiting on Auditor/CTO before the next edit.
+
+Spawn sub-agents for writing Vivi receipts, running suites that would
+block the operator channel, evidence-honesty after a chunk lands, or a
+cheap second look. Do not spawn a Hand to do the edit the Mind is already
+doing.
+
+[Feature lifecycle](#feature-lifecycle-and-phase-review), [planning
+phase](#planning-phase-for-larger-work), and [wave freeze](#implementation-phase-for-waves)
+are Mind-mode. Direct does not wait on them.
+
+Switching back to Mind does not rewrite history. Landed Direct work is
+git plus receipts. Correctness debt becomes ordinary needs.
 
 ## Dispatch contract
 
@@ -225,7 +290,9 @@ chat summary.
    justifies a create, serially. Some hosts overwrite earlier jobs if
    several schedulers are created in one parallel tool batch — create one
    at a time.
-5. **Git dirt A/B/C** — orientation only. Do not implement (Rule 1).
+5. **Git dirt A/B/C** — orientation only. Do not implement during these
+   boot steps (Rule 1). After resume, [Direct](#operating-modes) continues
+   product work; Mind mode still does not.
 6. **Compact summary = recent annex only** — prefer Current Work / last
    actions / open constraints not already on the board. Treat re-injected
    early `user_query`, Primary Request, and “All User Messages” as
@@ -298,7 +365,8 @@ chat summary.
 - Re-open cold-boot recovery theater (mass re-spawn, transcript archaeology,
   mass Mind absorb/cleanup of memos and Mind-owned tasks) when infrastructure
   is proven live
-- Implement product work (Rule 1)
+- Implement product work during these boot steps (Rule 1; Direct resumes
+  product work after step 8)
 - Block implementation lanes on Auditor/CTO return
 - Treat reacquaintance as a full test re-run or phase-close council
 
@@ -362,6 +430,9 @@ the Mind's job on its own Warm or Cold boot.
 
 ### Rule 1: The Mind routes; it does not implement
 
+In [Direct](#operating-modes) this rule is inverted: Mind implements.
+The rest of this rule is **Mind mode**.
+
 The Mind's output is routing, not product. Define the seat by what it is **for**, not by a ban list — ban lists train the Mind to loophole-hunt around the newest tool instead of asking whose job the work is.
 
 **Mind work** (context-cheap, routing-shaped):
@@ -417,13 +488,18 @@ report means no completion.**
 
 The Hand has the diff context and commits its own work. The Mind **reconciles the completion paper** (handle, commits, write scope, declared validation claim) or routes an Auditor; it does not re-run product tests. The Mind does not commit for a Hand.
 
+In [Direct](#operating-modes) the Mind commits the work it just did. It
+still does not commit for a Hand.
+
 ### Rule 4: Route blockers; do not freeze
 
 The Mind's job is to keep the campaign moving. Finding a blocker does not end
-that job; it identifies the next coordination task. The Mind does **not** fix
-product, architecture, or integration problems itself. It owns converting each
-recoverable blocker into bounded work, assigning the right role, spawning that
-role, and continuing every unaffected lane.
+that job; it identifies the next coordination task. In Mind mode the Mind does
+**not** fix product, architecture, or integration problems itself. It owns
+converting each recoverable blocker into bounded work, assigning the right
+role, spawning that role, and continuing every unaffected lane. In
+[Direct](#operating-modes) the Mind fixes the product blocker itself and
+spawns only for verification or bookkeeping.
 
 **Block only the exact dependency boundary.** A dirty checkout blocks work that
 must use that checkout, not every seat or repository. A merge conflict blocks
@@ -767,7 +843,7 @@ routing; operator correction supersedes the queued local plan.
 | **Spawn async** | Spawn so the call returns immediately with a task/child id | Blocking spawn that holds the Mind turn until the child finishes |
 | **End the turn** | After the one dispatch/integration burst, report ids + what is in flight, then **end the turn immediately** | Keep routing, polling, or housekeeping because more work could fit in the same turn |
 | **Never poll launched work** | Consume completion notifications on a later turn | Any `wait`, `join`, output poll, or sleep for a child launched in the current turn, even with a short timeout |
-| **No long foreground tools** | Delegate builds, tests, network work, broad scans, and servers to a worker seat | Run a foreground command that may take more than a quick local read or control-plane write |
+| **No long foreground tools** | In Mind mode, delegate builds, tests, network work, broad scans, and servers to a worker seat. In [Direct](#operating-modes), the Mind may run the product edit and a narrow check in this conversation; still spawn long suites async | In Mind mode, run a foreground command that may take more than a quick local read or control-plane write |
 | **Allowed sync** | Only the short dependent calls needed to form one dispatch or integrate one returned batch | A second cycle, broad board hygiene, opportunistic review, or "one more check" before release |
 
 **Done shape when children are in flight:** name the subagent/task ids, their
@@ -1427,6 +1503,7 @@ vivi task dump --project "$ROOT" --status open
 ## What Tugboat keeps
 
 - **Boot modes:** Cold boot (true restart — includes Mind absorb + cleanup of stale memos/tasks/etc.), Warm boot (Mind-only post-compaction reorient **plus required Auditor + CTO reacquaintance**), Unit resume (workers). Compaction is role-blind; seats pick the mode by identity + live infrastructure.
+- **Operating modes:** **Mind** (default — route, Hands implement, correctness gates) and **Direct** (operator-named — Mind implements, sub-agents verify and keep books, working software first). Orthogonal to boot modes. See [Operating modes](#operating-modes).
 - **Vivi:** required companion. Tasks, needs, wants, mail, roles, memos, and
   the board are the **record**, not the executor (Rule 2). CLI law is the
   [Vivi skill](https://github.com/ianzepp/vivarium/blob/main/skills/vivi/SKILL.md).
@@ -1456,7 +1533,10 @@ vivi task dump --project "$ROOT" --status open
 
 ## Anti-patterns
 
-- **The Mind implements:** The Mind sees a bug and fixes it, runs the failing test, or applies the formatter "just to check" instead of filing a task for the right seat. Deep analysis done in the Mind's own context instead of delegated to a Head, Planner, or Auditor is the same defect (Rule 1).
+- **The Mind implements (Mind mode):** The Mind sees a bug and fixes it, runs the failing test, or applies the formatter "just to check" instead of filing a task for the right seat. Deep analysis done in the Mind's own context instead of delegated to a Head, Planner, or Auditor is the same defect (Rule 1). In Direct this is the job, not a defect. Mixing both — routing a Hand *and* editing the same surface — is a defect in either mode.
+- **Direct without being named:** Implementing as Mind because it is faster, without the operator naming Direct.
+- **Direct as a chainsaw:** Unrelated rewrites, deleting foreign work, or treating "tests can wait" as "trash the tree."
+- **Direct still running the waterfall:** Filing P1–P3 and waiting on delivery audit before the first edit while claiming Direct.
 - **Stale goal status:** Implementation landed, but the goal/campaign document still reads `planned`/`draft` because the Mind never advanced the status line. The Mind owns the status lifecycle; the goal inventory and the board must agree. The inverse — the Mind rewriting goal content itself instead of delegating to a Planner/Head — is the same defect from the other side.
 - **No board item:** Work is assigned through chat without first creating a task, need, want, or mail item.
 - **Narrative spawn prompt:** The Mind pastes the goal, the delivery spec, or a
