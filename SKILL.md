@@ -323,7 +323,7 @@ chat summary.
    - Body: `audit_mode: evidence_honesty`; exact `base`/`head`; paths; relevant
      Hand closeout receipts if present; `trigger: warm_boot`; `re_execute: none`
      unless a named `block_ship`-class reason needs one targeted command
-     (Rule 6). Verdict: `clean_pass` | `residual` | `block_ship`.
+     (Rule 6). Verdict: `clean_pass` | `residual` | `block_range` | `block_ship`.
    - Purpose: where does implementation actually sit — claims vs commits vs
      scope — after the Mind lost chat context.
 
@@ -344,8 +344,9 @@ chat summary.
    - Spawn **async** and **do not wait** the Warm-boot turn on their return
      (Mind turn discipline). Report handle ids + child ids, then continue.
    - Do **not** empty Hand/Planner lanes waiting for these verdicts. Integrate
-     on the next Mind wake when reports land; route only `block_ship` or
-     admitted corrections.
+     on the next Mind wake when reports land; route only a `block_ship` or
+     `block_range`, scoped to the boundary it names (Rule 4), or an admitted
+     correction.
    - If an Auditor or `head-cto` is already live on an equivalent warm-boot or
      range task from moments ago, do not double-dispatch; attach or wait for
      that handle instead.
@@ -651,7 +652,9 @@ The interval backstop exists because the rest are declarable, and a Mind that de
 
 **The close gate.** Advancing a goal or campaign status to complete is a Mind action (see the status-lifecycle rule under Mind work). Close is not permitted until the closeout record names either
 
-- the aggregate audit handle(s) and their verdicts, with any `block_ship` resolved, or
+- the aggregate audit verdicts, with any `block_ship` resolved and every
+  `block_range` either resolved or excluded from the close by name — excluded
+  work becomes its own goal or need — or
 - a recorded waiver naming the untouched range, the reason, and a recheck point.
 
 **A silent close is the defect.** Residual debt may survive a close only when every item has an owner and a recheck trigger, which is already the rule for a phase.
@@ -659,6 +662,61 @@ The interval backstop exists because the rest are declarable, and a Mind that de
 **Two lenses, proportionate to the breakpoint.** The tactical pass is the Auditor's evidence-honesty read of the frozen range, and it answers correctness and test-honesty. The strategic pass asks the architecture question — did this implementation create frameworks, layers, or durable commitments it should not have — and at a sub-goal or wave breakpoint it is `head-cto` (or `head-cxo` for unearned layers) alone. The full Head council stays reserved for phase close and goal close, where the cost matches the commitment.
 
 **Still not per unit.** Nothing here re-introduces a per-unit audit. One aggregate range, one dispatch, up to four Auditors by path family or risk cluster. A Hand fix does not fire an audit; the next breakpoint covers it.
+
+### Verdict calibration and the repair loop
+
+An audit that stops the stream is worse than the defect it found. The verdict
+vocabulary is a **tier**, not a binary, and the Auditor picks the lowest tier that
+tells the truth.
+
+| Verdict | Meaning | What waits |
+| --- | --- | --- |
+| `clean_pass` | Nothing found in scope | Nothing |
+| `residual` | A real defect that does not invalidate the range's acceptance | Nothing — debt with an owner and a recheck trigger |
+| `block_range` | The paths, units, or lanes named in the finding are not acceptable | Only those paths, units, or lanes |
+| `block_ship` | The artifact must not ship or release | The release, and only the release |
+
+**`residual` is the default for a real finding.** A defect confined to a leaf, a
+local error outside the acceptance criteria, or anything with a bounded and
+recoverable blast radius is a residual. Record it, own it, recheck it, keep going.
+
+**`block_range` is the tier for a range that mostly works.** Name the exact paths,
+units, or lanes that are not acceptable. Those wait; the goal, the wave, and every
+unrelated lane continue. This is the right verdict for a small defect inside a
+large landed range — not a whole-range veto.
+
+**`block_ship` is reserved for consequence, not for incorrectness.** It applies
+when the defect (a) violates a named release invariant — data loss or corruption,
+a security or authorization boundary, a persisted format or ABI, a published
+contract — or (b) makes an acceptance criterion or claimed gate false in a way a
+downstream consumer would rely on. The finding names the invariant, the affected
+paths, and **what shipping it breaks, for whom, and whether that is recoverable**.
+
+"The diff is wrong" is not a `block_ship` reason; the question is what the
+wrongness costs once it is out the door. Two wrong lines out of two thousand are a
+`block_range` on those lines, or a `residual`. A verdict that cannot name a
+consumer-visible or unrecoverable consequence drops a tier.
+
+**Scope every block.** A `block_ship` or `block_range` names the exact boundary it
+blocks: paths, repos, units, lanes. Everything outside that boundary keeps moving,
+and the Mind re-dispatches unrelated eligible work in the same turn. Rule 4's
+"Block only the exact dependency boundary" applies to audit findings exactly as it
+applies to any other blocker.
+
+**The repair loop is bounded.** A repair is verified by a targeted re-review of
+**the repair diff only** — never a re-audit of the range.
+
+1. One re-review per finding.
+2. A **different** defect the re-review surfaces is a **new finding with its own
+   tier**. It neither extends nor reopens the original block; that block clears
+   when its own finding is resolved.
+3. After **two** rounds on the same finding, the next step is a Head ruling
+   (`head-cto` for correctness, `head-cxo` for purity) — not a third slice. The
+   Mind escalates rather than looping.
+4. The Mind never re-runs the full audit to confirm a small repair.
+
+Follow-on implementation continues throughout. An open block on one boundary is
+not a reason to leave seats empty while readiness exists (Rule 5).
 
 ## Shared-workspace build discipline
 
@@ -725,7 +783,7 @@ Each role is a Vivi identity with a mailbox and role record.
 |---|---|---|
 | **Mind** | Sees work, assigns roles, integrates results, reconciles completion paper and advances goal/campaign status as units land (Rules 1/6), performs operational capacity analysis, talks to the operator, manages the loop, and keeps every seat as full as possible (Rule 5). | Edit product files, run tests, builds, linters, formatters, or factory suites, re-execute Hand closeout, perform deep product/specialist analysis in its own context (that is Head/Planner/Auditor work), rewrite goal/campaign content, or commit for roles. |
 | **Hand** | Implements **one logical change**, optional sanity check, commits, reports done, turns the seat over. | Wait for GO stamps, erase other work, lower goals, rediscover architecture, run project-wide gates, sit on a multi-family bag, or run tools after `task done`. |
-| **Auditor** | Reviews settled delivery specs or frozen phase ranges; returns `admitted`/`revise` or `clean_pass`/`residual`/`block_ship` via **evidence honesty** (Rule 6). Standing procedure lives on the Vivi **role charter** (same packaging as Heads). | Implement code, commit product work, issue a GO stamp, or re-run the Hand's full validation ladder / real-device suite by default. |
+| **Auditor** | Reviews settled delivery specs or frozen phase ranges; returns `admitted`/`revise` or `clean_pass`/`residual`/`block_range`/`block_ship` via **evidence honesty** (Rule 6). Standing procedure lives on the Vivi **role charter** (same packaging as Heads). | Implement code, commit product work, issue a GO stamp, or re-run the Hand's full validation ladder / real-device suite by default. |
 | **Planner** | Goal-forge, goal-check, and delivery lowering into unit graphs. Standing procedure lives on the Vivi **role charter**. | Implement product code, merge, review, or file Hand tasks. |
 | **Hater** | Runs one fresh hostile first-impression pass on one bounded surface for one skeptical audience and reports raw perception evidence. Standing procedure is the Vivi role charter, plus a hater skill if the workspace has one. | Judge merit, inspect hidden rationale, implement, audit, create tasks, or block acceptance or launch. |
 | **Head** (`head-ceo`, `head-cmo`, `head-cpo`, `head-cso`, `head-cto`, `head-cxo`) | Advises on a strategic question; the Mind may select a smaller council of Heads for the periodic phase-close strategic architecture review (see [Feature lifecycle](#feature-lifecycle-and-phase-review)). Standing persona lives on the Vivi **role charter**. | Lower goals, implement, prepare tasks, merge, block production, or re-run product/device verification. |
@@ -1010,7 +1068,7 @@ A Hand completes a task by:
 A blocked Hand is also one line (what blocked, what follow-up). If the bag is
 wrong, file a **need** with must-do / repro / boundary, then stop.
 
-An Auditor closes with `clean_pass`, `residual`, or `block_ship` (delivery:
+An Auditor closes with `clean_pass`, `residual`, `block_range`, or `block_ship` (delivery:
 `admitted` or `revise`). The reply on the assignment handle is a **doorbell**:
 verdict, frozen range, mail handle of the full report if the body is long.
 Put the YAML report on that handle when it fits, or as a second mail to Mind
@@ -1044,7 +1102,7 @@ Refusing an improper assignment is correct behavior. A role refuses when, for ex
 - the Mind sends a Hand a bag that requires rediscovering architecture, re-verifying the goal, or surveying sibling crates before any edit (that is Planner work; the Hand refuses);
 - the Mind sends an Auditor a mutable checkout, an uncommitted diff, or a review request without a frozen aggregate base/head and path scope;
 - the Mind sends an Auditor a default "re-run the full suite / all device gates" without a named `re_execute` command and `block_ship`-class reason (Rule 6 V6);
-- the Mind treats a `block_ship` finding as acceptance, or treats a minor `residual` as a reason to stop unrelated work;
+- the Mind treats a `block_ship` finding as acceptance, treats a minor `residual` as a reason to stop unrelated work, or stops the whole stream for a `block_range` instead of the boundary it names;
 - a Head is asked to implement or to re-run product/device verification; or
 - a Hand is asked to merge work.
 
@@ -1092,7 +1150,7 @@ head: phase-tip-789
 paths: crates/parser/src/validate.rs, crates/parser/tests/validate.rs
 receipts: hand closeout notes on those handles
 re_execute: none
-verdict: clean_pass | residual | block_ship
+verdict: clean_pass | residual | block_range | block_ship
 do_not: implement; full ladder'
 # Spawn auditor with the same four-line pointer, handle of this task.
 ```
@@ -1115,7 +1173,7 @@ The two Auditor handoffs are different and must not be collapsed:
 - **Delivery audit:** the Auditor checks a settled P2/P3 specification before implementation — scope, dependencies, acceptance criteria, and validation against the live repository. Its result is `admitted` or `revise`; it does not inspect an implementation that does not exist.
 - **Implementation audit:** at the named stage/phase boundary, the Mind freezes the aggregate exact base/head (or commit set) and paths, attaches Hand closeout receipts, then sends that range to the Auditor under Rule 6 (`audit_mode: evidence_honesty` by default). The Auditor returns `clean_pass`, `residual`, or `block_ship` with evidence. A mutable worktree, an uncommitted diff, or an unspecified tip is not an audit target. Per-unit audit is an exception for a declared high-risk gate, not the default flow. The same frozen-range pattern is **required** on every [Warm boot](#warm-boot-mind-only-post-compaction) (post-compaction reacquaintance, with a paired CTO strategic pass). When [Cadence](#cadence) recommends `auditor_range`, Mind dispatches the same audit without waiting for a formal phase cutoff. The Auditor does **not** re-run the Hand's full validation ladder or real-device suite unless the task names one targeted `re_execute` command and a reason that cannot be settled from artifacts.
 
-The implementation audit is not a permission for the Auditor to edit. A `residual` finding is normally non-blocking: the Mind records it as audit debt, creates a bounded follow-up task, and allows downstream work to continue when the dependency graph permits. **Not re-running a project suite the Hand receipt already records is not itself a residual.** The Auditor must mark a finding `block_ship` only when it violates a stated acceptance criterion or a correctness, security, persistence, boundary, or other named release invariant. For `block_ship`, the Mind creates a repair task containing the finding, affected paths, and revised done-when condition. The Hand commits the repair and re-runs **only** the failed declared validation for that repair; the Mind schedules a targeted re-review or the next phase audit; a minor repair does not automatically reopen the whole implementation cycle.
+The implementation audit is not a permission for the Auditor to edit. A `residual` finding is normally non-blocking: the Mind records it as audit debt, creates a bounded follow-up task, and allows downstream work to continue when the dependency graph permits. **Not re-running a project suite the Hand receipt already records is not itself a residual.** The Auditor must mark a finding `block_ship` only on the tier test in [verdict calibration](#verdict-calibration-and-the-repair-loop): a named release invariant, or a false gate a downstream consumer would rely on, with the consequence of shipping stated. A defect that is merely wrong, confined to named paths, and recoverable is `block_range` on those paths, or `residual`. For `block_ship`, the Mind creates a repair task containing the finding, affected paths, and revised done-when condition. The Hand commits the repair and re-runs **only** the failed declared validation for that repair; the Mind schedules a targeted re-review of the repair diff alone, never a re-audit of the range; a minor repair does not automatically reopen the whole implementation cycle, and rounds are capped ([verdict calibration](#verdict-calibration-and-the-repair-loop)).
 
 When a feature has a first-contact marketing surface, the Mind may run several Hater passes concurrently with different audiences. Each receives a fresh context and the same frozen exposure boundary. Raw reports go back to the Mind, then to `head-cmo` by default for separate merit synthesis. `head-cpo` may assess product-value implications and `head-cxo` may assess complexity signals. Neither the Hater pass nor its synthesis is an automatic implementation gate.
 
@@ -1387,7 +1445,7 @@ four** Auditors by path family, crate, or risk cluster. File
 `audit_mode: evidence_honesty`, exact `base`/`head`, paths, receipts,
 `re_execute: none` unless a named `block_ship`-class reason needs one
 targeted command; then **spawn**. Integrate `clean_pass` / `residual` /
-`block_ship`. Also required on every Warm boot (`trigger: warm_boot`).
+`block_range` / `block_ship`. Also required on every Warm boot (`trigger: warm_boot`).
 
 **`cto_range`.** Same kind of window. File + spawn `head-cto` (small council
 only if the window warrants it). Lens: durable assumptions, seam placement,
@@ -1581,7 +1639,7 @@ vivi task dump --project "$ROOT" --status open
 - **Offline fallback:** WAN down → new spawns use the host's local model. Recheck each Mind turn. Do not interrupt in-flight seats.
 - **Memos:** durable context for the Mind and Heads. Cadence does not file them.
 - **Shared-workspace rules:** classify dirt A/B/C and never erase foreign work.
-- **Audit loop:** plan → delivery audit → implement and unblock → aggregate audit at every required breakpoint (goal and sub-goal close, wave or phase freeze, risk gate, interval backstop, Warm boot), never per unit → close gated on that verdict or a recorded waiver → accept or repair only blocking findings.
+- **Audit loop:** plan → delivery audit → implement and unblock → aggregate audit at every required breakpoint (goal and sub-goal close, wave or phase freeze, risk gate, interval backstop, Warm boot), never per unit → close gated on that verdict or a recorded waiver → accept or repair only blocking findings, scoped to the boundary they name.
 - **Cadence:** one `cadence` seat and one `cadence_tick` loop. Cadence reviews
   the board and `vivi goal list`, looks ahead past the current stage, and
   mails Mind a ranked opinion. It does not dispatch. **Off by default.**
@@ -1630,6 +1688,9 @@ vivi task dump --project "$ROOT" --status open
 - **Per-unit audit serialization:** Do not send every completed unit through an Auditor before starting its successors. Reconcile the completion, unblock eligible work, and defer ordinary implementation review to the aggregate phase audit or a cadence-recommended range.
 - **Close without an aggregate audit:** A goal, sub-goal, or wave advanced to complete with no independent read of its landed range and no recorded waiver. The per-unit ban above is about not serializing every unit; it is not a licence to close unaudited.
 - **Audit deferred because nothing was declared:** Treating "no cutoff was declared" as a reason no aggregate audit is due. The interval backstop fires without a declaration.
+- **Block_ship inflation:** Using `block_ship` for a defect that violates no named release invariant and that a downstream consumer would never rely on. Two wrong lines in a leaf are a `block_range` or a `residual`, not a ship gate.
+- **Repair-audit loop:** Re-auditing the whole range after each `block_ship` repair, so every fix uncovers the next finding and the pipeline never advances. Repair verification is scoped to the repair diff, and the third round is a Head ruling.
+- **Whole-stream stop for a scoped finding:** Freezing unrelated lanes because the blocked boundary was never named. Rule 4 scoping applies to audit findings.
 - **Cadence mail as a gate:** A cadence opinion must not freeze Hands or empty seats. It is a briefing, not a stop condition.
 - **Cadence dispatches:** The cadence seat and the timer must not spawn Auditors, Heads, Hands, or polish seats. Cadence mails Mind; Mind routes.
 - **Cadence files memos:** Cadence cites Mind memos to drop. It does not add another memo.
