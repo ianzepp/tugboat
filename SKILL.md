@@ -614,8 +614,8 @@ names only the protocol-level owners below.
 | Integration / suite / release | **Project-defined seats** | As that project says | Named in the project's agents/charter docs. Tugboat does not invent the ladder. |
 | Completion reconcile | **Mind** | Once per finished handle | Paper only: commit exists, paths ⊆ write scope, Hand said done. |
 | Delivery audit | **Auditor** | Once per delivery spec | Spec vs live repo. No product implementation exists yet. |
-| Implementation (phase) audit | **Auditor** | Named phase cutoff, risk gate, Warm-boot reacquaintance, or cadence-recommended range | Evidence honesty on frozen commits + paths + receipts. Not a Hand closeout. |
-| Phase-close strategic review | **Heads** | Phase close; lighter CTO on Warm boot | Architecture and future pressure. No suite or device re-run. |
+| Implementation (aggregate) audit | **Auditor** | Goal or sub-goal close, declared wave or phase freeze, named risk gate, interval backstop, Warm-boot reacquaintance, or cadence-recommended range | Evidence honesty on frozen commits + paths + receipts: was the diff done correctly, were tests weakened or acceptance clauses left unexecuted, what architectural residual did it leave. Not a Hand closeout. |
+| Strategic architecture review | **Heads** — `head-cto` alone at a sub-goal or wave breakpoint | Phase close, goal close, and every sub-goal close; lighter CTO pass on Warm boot | Whether the implementation created architecture, frameworks, or durable commitments it should not have. Architecture and future pressure; no suite or device re-run. |
 
 **Invariants (V1–V8):**
 
@@ -631,6 +631,34 @@ names only the protocol-level owners below.
 8. **V8 — Council is not a third verifier.** Heads use receipts and tactical audit findings as inputs. They do not re-run suites, real-device gates, or project ladders.
 
 **Allowed thrash:** repeated **narrow** checks while debugging a red failure are fine. **Forbidden thrash:** full ladder or full real-device sweep after every minor edit; multiple "final" packages after green; re-run after task done; Auditor or Mind replaying the Hand's closeout suite without a named defect.
+
+### Audit breakpoints and the close gate
+
+The scope above already names what an aggregate audit checks: whether the diff does what its spec said, whether tests were weakened or acceptance clauses left unexecuted, and what architectural residual it left. This subsection fixes **when** those checks run, because a trigger the Mind may decline to declare is a trigger that never fires.
+
+**Required breakpoints.** An aggregate audit is mandatory at each of these, and none of them depends on the Mind volunteering a cutoff:
+
+| Breakpoint | Range audited |
+| --- | --- |
+| **Goal or sub-goal close** | Everything landed under that goal since its last aggregate audit |
+| **Declared wave or phase freeze** | The frozen wave range |
+| **Named risk gate** | The named range |
+| **Interval backstop** | Everything landed under a goal since its last aggregate audit, once the goal passes a declared unit count or elapsed interval without one |
+| **Warm boot** | `base` = the last **aggregate audit** tip |
+| **Cadence-recommended range** | Current main tip against the last aggregate audit tip |
+
+The interval backstop exists because the rest are declarable, and a Mind that declares none of them produces exactly the failure this closes: a long continuous stream of landed units that no independent reader ever saw. Its thresholds are the project's to name — units landed, days elapsed — and whatever they are, the range becomes READY audit work the Mind files, the same as any other READY unit.
+
+**The close gate.** Advancing a goal or campaign status to complete is a Mind action (see the status-lifecycle rule under Mind work). Close is not permitted until the closeout record names either
+
+- the aggregate audit handle(s) and their verdicts, with any `block_ship` resolved, or
+- a recorded waiver naming the untouched range, the reason, and a recheck point.
+
+**A silent close is the defect.** Residual debt may survive a close only when every item has an owner and a recheck trigger, which is already the rule for a phase.
+
+**Two lenses, proportionate to the breakpoint.** The tactical pass is the Auditor's evidence-honesty read of the frozen range, and it answers correctness and test-honesty. The strategic pass asks the architecture question — did this implementation create frameworks, layers, or durable commitments it should not have — and at a sub-goal or wave breakpoint it is `head-cto` (or `head-cxo` for unearned layers) alone. The full Head council stays reserved for phase close and goal close, where the cost matches the commitment.
+
+**Still not per unit.** Nothing here re-introduces a per-unit audit. One aggregate range, one dispatch, up to four Auditors by path family or risk cluster. A Hand fix does not fire an audit; the next breakpoint covers it.
 
 ## Shared-workspace build discipline
 
@@ -928,8 +956,9 @@ raw goal
   → Hand: implement admitted units and unblock successors
   → Mind: file the integration task — a project merge/release seat lands the commit
   → stage/phase cutoff: freeze aggregate range
-  → Auditor: implementation audit
-  → Mind: close, record residual debt, or route blocking repair
+  → Auditor: aggregate implementation audit — also at goal and sub-goal close
+  → Mind: close, record residual debt, or route blocking repair — gated on that
+    verdict or a recorded waiver ([audit breakpoints](#audit-breakpoints-and-the-close-gate))
 ```
 
 **A commit is not a landing.** Where the project separates integration from
@@ -1077,7 +1106,7 @@ An individual feature runs a fixed role cycle; multiple features compose a **pha
 1. **Planner** forges the goal (goal-forge) → **Mind** verifies intent.
 2. **Planner** lowers to delivery (goal-check → P3 delivery) → **Auditor** verifies the delivery spec.
 3. **Mind** admits each audited delivery unit → **Hand** implements and commits it. Completed units may unblock successor units immediately.
-4. At the named stage/phase boundary, **Auditor** reviews the aggregate frozen commit range → **Mind** closes the phase or routes only blocking repairs.
+4. At the named stage/phase boundary and at goal close, **Auditor** reviews the aggregate frozen commit range → **Mind** closes the phase or goal, or routes only blocking repairs. A goal may not be closed without that verdict or a recorded waiver ([audit breakpoints](#audit-breakpoints-and-the-close-gate)).
 
 The Mind routes each step and integrates the result. An Auditor never issues a GO stamp; closing is the Mind's call.
 
@@ -1092,7 +1121,7 @@ When a feature has a first-contact marketing surface, the Mind may run several H
 
 ### Phase-close strategic architecture review
 
-When a phase's implementation and aggregate tactical audit are complete, run a strategic architecture review before **admitting or committing to** the next phase's features. The current phase may be operationally complete, but the transition is not final until this review has a disposition. Discovery, provisional candidate selection, code-fact research, and draft lowering should already be running while the current phase implements.
+When a phase's implementation and aggregate tactical audit are complete, run a strategic architecture review before **admitting or committing to** the next phase's features. The same review is required at goal close even when no phase was ever declared, so the strategic lens cannot be removed by an undeclared tactical one. The current phase may be operationally complete, but the transition is not final until this review has a disposition. Discovery, provisional candidate selection, code-fact research, and draft lowering should already be running while the current phase implements.
 
 - **Who:** a smaller council of Heads chosen by the Mind (the executive team — any subset of `head-ceo` / `head-cmo` / `head-cpo` / `head-cso` / `head-cto` / `head-cxo`).
 
@@ -1151,7 +1180,7 @@ Declare the cutoff before launch by admitted set, deadline, or explicit operator
 
 At the cutoff, the Mind stops preparing new work and drains the units already in flight. It then freezes the wave and reconciles audit debt, aggregate findings, campaign state, and repository evidence against the accepted unit set. A freeze is mandatory for anything called a wave.
 
-A wave freeze is not an implementation audit by itself. The Mind sends the aggregate implementation range to the Auditor only at the declared stage or phase audit cutoff, or when a named risk gate requires early review. This keeps wave bookkeeping from turning every wave into a serial audit barrier.
+A wave freeze is not an implementation audit by itself, and a freeze may be recorded before the audit returns — that is what keeps wave bookkeeping from turning every wave into a serial audit barrier. A freeze is not a **close**: the wave's range must be audited, or waived, before the wave closes and before its goal advances status ([audit breakpoints](#audit-breakpoints-and-the-close-gate)).
 
 The Mind creates a freeze receipt that names the baselines, admitted, landed, accepted, repaired, and excluded units; records the aggregate Auditor verdict and any residual debt; records validation evidence; and states the next posture. A phase may close with residual debt when no `block_ship` finding remains and every debt item has an owner and recheck trigger.
 
@@ -1340,7 +1369,7 @@ charter. Skip a process when the window is empty. Do not invent work.
 | `spawn_debt` | Open harnessed tasks, no live process | Those handles are spawn-dead; re-spawn |
 | `neglected_need` | Open need with no live owner and no disposition | Cite the need; Mind must lower + spawn |
 | `unlocked_want` | Want whose precondition is now true, needs are clear | Cite the want; consider promote/dispatch |
-| `auditor_range` | Last auditor tip older than ~1h **and** new commits on managed mains | File + spawn auditor (see below) |
+| `auditor_range` | Last **aggregate audit** tip older than ~1h **and** new commits on managed mains | File + spawn auditor (see below). Delivery audits, re-reviews, and verification reports do not advance this tip; only an aggregate implementation audit does. |
 | `cto_range` | Last CTO tip older than ~1h **and** (new main merges **or** `head-cto` schedule overdue) | File + spawn `head-cto` |
 | `security_review` | Last security pass older than the CSO cadence **and** (new surface or overdue `head-cso`) | File + spawn `head-cso` (or the project's security seat) |
 | `memo_hygiene` | Stale or duplicated Mind memos (dead loop ids, superseded posture) | List handles to delete; Mind deletes |
@@ -1352,8 +1381,8 @@ charter. Skip a process when the window is empty. Do not invent work.
 Mind runs these under normal Tugboat rules after it accepts the mail (or on
 Warm boot / operator request). Cadence does not run them.
 
-**`auditor_range`.** Pin `base` = last auditor tip (Mind memo or last review
-handle); `head` = current committed tip. Inventory paths. Dispatch **one to
+**`auditor_range`.** Pin `base` = the last **aggregate audit** tip (Mind memo
+or the last implementation-audit handle — not the last auditor mail); `head` = current committed tip. Inventory paths. Dispatch **one to
 four** Auditors by path family, crate, or risk cluster. File
 `audit_mode: evidence_honesty`, exact `base`/`head`, paths, receipts,
 `re_execute: none` unless a named `block_ship`-class reason needs one
@@ -1552,7 +1581,7 @@ vivi task dump --project "$ROOT" --status open
 - **Offline fallback:** WAN down → new spawns use the host's local model. Recheck each Mind turn. Do not interrupt in-flight seats.
 - **Memos:** durable context for the Mind and Heads. Cadence does not file them.
 - **Shared-workspace rules:** classify dirt A/B/C and never erase foreign work.
-- **Audit loop:** plan → delivery audit → implement and unblock → aggregate phase audit (evidence honesty) → accept or repair only blocking findings.
+- **Audit loop:** plan → delivery audit → implement and unblock → aggregate audit at every required breakpoint (goal and sub-goal close, wave or phase freeze, risk gate, interval backstop, Warm boot), never per unit → close gated on that verdict or a recorded waiver → accept or repair only blocking findings.
 - **Cadence:** one `cadence` seat and one `cadence_tick` loop. Cadence reviews
   the board and `vivi goal list`, looks ahead past the current stage, and
   mails Mind a ranked opinion. It does not dispatch. **Off by default.**
@@ -1599,6 +1628,8 @@ vivi task dump --project "$ROOT" --status open
 - **Foreign dirt is erased:** Git is used to clean files that may belong to another agent.
 - **Chat is the record:** A decision or handoff is treated as real even though it was never recorded on the board.
 - **Per-unit audit serialization:** Do not send every completed unit through an Auditor before starting its successors. Reconcile the completion, unblock eligible work, and defer ordinary implementation review to the aggregate phase audit or a cadence-recommended range.
+- **Close without an aggregate audit:** A goal, sub-goal, or wave advanced to complete with no independent read of its landed range and no recorded waiver. The per-unit ban above is about not serializing every unit; it is not a licence to close unaudited.
+- **Audit deferred because nothing was declared:** Treating "no cutoff was declared" as a reason no aggregate audit is due. The interval backstop fires without a declaration.
 - **Cadence mail as a gate:** A cadence opinion must not freeze Hands or empty seats. It is a briefing, not a stop condition.
 - **Cadence dispatches:** The cadence seat and the timer must not spawn Auditors, Heads, Hands, or polish seats. Cadence mails Mind; Mind routes.
 - **Cadence files memos:** Cadence cites Mind memos to drop. It does not add another memo.
