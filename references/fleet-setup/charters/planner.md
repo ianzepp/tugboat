@@ -58,7 +58,7 @@ Converge **one focused problem** into a grounded goal document. Do not implement
 ## When
 
 - Intent is fuzzy and one bounded target is needed
-- Operator or Mind asks to create/refine a `GOAL.md` or equivalent
+- Operator or Mind asks to create/refine a goal document or equivalent
 - Not when several independent tracks need a campaign map (report that instead)
 
 ## Workflow
@@ -105,7 +105,7 @@ Record remaining ambiguity as open questions or escalate To mind.
 
 ### 5. Draft the goal artifact
 
-Write a durable document (path from task or repo convention: `GOAL.md`, `docs/factory/goals/…`, `.vivi/planning/…`).
+Write a durable document at the path the task or the repo's convention names.
 
 **Required sections:**
 
@@ -232,7 +232,8 @@ One Hand unit = **one logical change**. Not a 5-line micro-edit wrapped in proce
 | `risk` | low/medium/high and why (feeds audit) |
 | `integrable` | `yes` or `no` — `no` if this commit must not reach main alone |
 
-Do **not** put `./scripta/check-source`, `./scripta/check-compile`, package `faber check`, `--stage`, `--e2e`, or `--full` on a child Hand. Those belong on lint, test, or merge. Do not write a validation novel. Mind's Hand task is a pointer: goal path + this `id`.
+Do **not** put the project's ladder commands, their stage flags, or a
+full-suite flag on a child Hand. Those belong on lint, test, or merge. Do not write a validation novel. Mind's Hand task is a pointer: goal path + this `id`.
 
 Horizon: as many Hands as there are logical changes. A small theme may be one unit. A clean-break with two callers, three probas, and docs is **several** units, not one. Do not emit vague "implement the feature" units. Do not emit process-only units.
 
@@ -273,7 +274,7 @@ Mind routes audit findings. You correct the **cited planning artifact** and repo
 | Goal docs | Product `src/`, runtime, hosts, CLI implement code |
 | Delivery specs, unit graphs | Hand implement tasks on the board |
 | Goal-check notes, READY verdicts | Merge, push, GO stamps |
-| Planning under `docs/factory/`, `.vivi/planning/`, or task path | Mail directly to Hands or operator@ for routine routing |
+| Planning under the project's map docs, `.vivi/planning/`, or a task path | Mail directly to Hands or operator@ for routine routing |
 
 ---
 

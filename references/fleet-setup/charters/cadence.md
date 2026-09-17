@@ -42,7 +42,7 @@ what can execute *now*. Stage numbers are routing order, not blockers.
 ## A tick
 
 1. Load this charter and the previous cadence→mind mail (if any).
-2. Read `vivi board --project $ROOT --process --json`, `vivi role list --project $ROOT --json` (each role's `cadence` field is its firing schedule — the lint/test/docs due checks below use it), open needs and wants for mind, Mind memo list (read-only), `vivi mail list --project $ROOT --for mind --folder inbox --status unabsorbed` (count the pile; `--json` is fine), `vivi goal list --project $ROOT --json` (the campaign working set), and the project occupancy signal if one exists (`scripta/hand-packet occupancy` in this workspace).
+2. Read `vivi board --project $ROOT --process --json`, `vivi role list --project $ROOT --json` (each role's `cadence` field is its firing schedule — the lint/test/docs due checks below use it), open needs and wants for mind, Mind memo list (read-only), `vivi mail list --project $ROOT --for mind --folder inbox --status unabsorbed` (count the pile; `--json` is fine), `vivi goal list --project $ROOT --json` (the campaign working set), and the project occupancy signal if one exists (the packet tool's `occupancy`, where the project has one).
 3. Apply the [priority lenses](#priority-lenses). Score the process catalog against live evidence. Also score neglected needs/wants, stale Mind memos, and `mail_hygiene` when the unabsorbed count is ≥ 20.
 4. Dedup against open tasks, needs, live processes, and the previous mail.
 5. If something new is due, file mail `--from cadence --to mind`. File a need only for must-do work that is not already a need.
@@ -110,11 +110,11 @@ Apply every tick after the board / occupancy / goal-list read.
 
 ### `pull_forward` procedure
 
-Working set is **`vivi goal list` only**. Do not walk every `docs/factory/`
+Working set is **`vivi goal list` only**. Do not walk every map
 directory. `vivi goal show` is metadata (handle, path, label). Read the
 registered file for stages.
 
-1. Skip `exists: false`. Skip paths under `docs/archived/` or whose
+1. Skip `exists: false`. Skip paths under an archive directory or whose
    `**Status**:` line is `done` / `deferred` unless the label contradicts
    the Status line (then cite as hygiene, not pull-forward).
 2. Bounded read of each remaining file: Status line; Campaign Path /
@@ -148,7 +148,7 @@ Skip a row when the window is empty.
 | Process | Due when | Recommend |
 | --- | --- | --- |
 | `pull_forward` | A registered goal (`vivi goal list`) has a later-stage, sibling-track, or other-goal item whose **named** deps are already satisfied, and usable seats are free (or Mind is treating a stage number as a gate) | File + spawn the named role for that item. Cite `gol_*` + stage/unit. Tell Mind it can run now. |
-| `registry_contradiction` | A registered goal's own file contradicts its registration: `**Status**:` reads done / deferred, or its path is under `docs/archived/` | Cite `gol_*` + the exact Status line. Tell Mind to unregister it or correct the Status line. `this_cycle`. |
+| `registry_contradiction` | A registered goal's own file contradicts its registration: `**Status**:` reads done / deferred, or its path is under an archive directory | Cite `gol_*` + the exact Status line. Tell Mind to unregister it or correct the Status line. `this_cycle`. |
 | `focus_drift` | A registered goal has yielded no runnable item for ≥3 consecutive ticks while other registered goals consumed capacity | Cite `gol_*` + the ticks covered. Surface it as a question for Mind to confirm with the operator — never a direct unregister recommendation. `later`. |
 | `fill_lanes` | Free usable seats and READY units or orphan open bags | File + spawn Hands / claim lanes |
 | `planner_backlog` | Unlowered goals and planner idle | File + spawn planner |
@@ -226,7 +226,7 @@ These four laws override any conflicting prose above. Refuse nothing else about 
 
 The four laws above govern what you cite. This amendment governs the OCCUPANCY INFERENCE itself, which failed four consecutive ticks (08:4xZ–10:4xZ, all disproven by host-side polls):
 
-5. SEAT-VISIBILITY LAW: Vivi CANNOT see whether an open task has a running subagent. In this workspace's direct mode, the Mind spawns host-side subagents that leave no Vivi footprint, and most seats land via scratch worktrees — `scripta/hand-packet` locks exist ONLY for packet-mode seats. Therefore: an open task is the MIND'S DISPATCH RECORD, not evidence of a missing seat. You may NOT infer "seatless", "unseated", "no seat", or spawn-debt from task age, packet-lock absence, or last_event age. Occupancy claims are BANNED from actions entirely; if you believe a seat is dead, the strongest allowed form is "occupancy unknown — suggest Mind poll <handle>", ranked no higher than `later`.
+5. SEAT-VISIBILITY LAW: Vivi CANNOT see whether an open task has a running subagent. In this workspace's direct mode, the Mind spawns host-side subagents that leave no Vivi footprint, and most seats land via scratch worktrees — the packet tool's locks exist ONLY for packet-mode seats. Therefore: an open task is the MIND'S DISPATCH RECORD, not evidence of a missing seat. You may NOT infer "seatless", "unseated", "no seat", or spawn-debt from task age, packet-lock absence, or last_event age. Occupancy claims are BANNED from actions entirely; if you believe a seat is dead, the strongest allowed form is "occupancy unknown — suggest Mind poll <handle>", ranked no higher than `later`.
 6. CLOSED-HANDLE LAW: before naming any handle as waiting/busy/starved in actions, re-verify it is on the CURRENT open list in the same tick. Handles closed by their seats (vivi task done) drop off `--status open`; citing a closed handle (SFR-4 7b363f1a, D5 d03bc3c3 at 10:4xZ) is a defective tick under law 4.
 
 These two laws override any conflicting prose above. Everything else stands.

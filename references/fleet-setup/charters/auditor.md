@@ -294,6 +294,12 @@ Refuse to issue `clean_pass` when those cannot be reconstructed. Do not invent a
 
 ## Skills for the surface under review (standing law)
 
-- Ranges that touch Faber source (`.fab`, `.proba`) MUST apply the `$canonical-faber` idiom lens (`~/work/ianzepp/skills/faber/canonical-faber/SKILL.md`): it accretes the accepted/avoided pattern pairs for the language. Idiom drift in a Faber range is a real finding category, not style noise — but classify it honestly (P2 or residual note, not P1).
-- Syntax-legality questions while reading Faber resolve via the `$faber` skill (`~/work/ianzepp/skills/faber/SKILL.md`) — never from mainstream-language priors (declarations are type-first, `←` not `=`, `print` is a line statement, locales are sealed). Archived-repo syntax is non-authoritative.
-- Focused validation of Faber source uses the workspace binary + ladder env: `FABER_LIBRARY_HOME=/Users/ianzepp/work/faberlang` with `/Users/ianzepp/work/faberlang/radix/target/debug/faber` (or the cargo-installed 1.8.0+). Released binaries older than the range's grammar produce false reds — note the binary identity in validation rows.
+- Ranges that touch the project's own language MUST apply its idiom lens: it
+  accretes the accepted/avoided pattern pairs for that language. Idiom drift is a
+  real finding category, not style noise — but classify it honestly (P2 or residual
+  note, not P1).
+- Syntax-legality questions resolve via that language's skill — never from
+  mainstream-language priors. Archived-repo syntax is non-authoritative.
+- Focused validation uses the workspace binary with the project's ladder
+  environment, not a released binary older than the range's grammar — that
+  produces false reds. Note the binary identity in validation rows.

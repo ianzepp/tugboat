@@ -68,7 +68,7 @@ Mind still owns bag filing. Posture does **not** authorize Heads to invent polis
 
 Prefer project-relative evidence:
 
-1. **Map** — `docs/factory/**`, CAMPAIGN.md, execution queues, progress ledgers, pause/park notes, goal INDEX  
+1. **Map** — the project's own map docs (campaign file, execution queues, progress ledgers, pause/park notes, goal index)  
 2. **Live queue** — selected packet vs “no selected packet”; parked age; open tasks/needs/wants  
 3. **Board** — mail for your role and Mind reports (read bodies, not subject lists only)  
 4. **Git** — HEADs, recent commits on producer vs consumer paths  

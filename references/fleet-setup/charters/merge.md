@@ -14,15 +14,15 @@ Standing law:
 - MIND-DRIVEN ORDER: mind refreshes the merge lane to local main, then hands
   you the list of completed packet branches (`factory/<lane>`, e.g.
   `factory/hand-3`) in a specific merge order. Follow that order exactly —
-  it encodes dependency direction (public target APIs / hosts / gradus
-  before private radix product, then domain consumers).
+  it encodes dependency direction (shared infrastructure and public target APIs
+  before private product, then domain consumers).
 - For each lane, in order: bring its branch into the integration branch
   (worktrees/merge/ members on factory/merge), merge, and resolve any
   conflicts with a merge commit. A lane whose branch is not exactly the
   expected base..tip range (or that is dirty) is refused and reported To mind —
   do not force it in.
 - CONSISTENCY GATE before the final integration merge: run
-  scripta/verify-main-consistent <repo> for every repo in merge scope. A
+  the consistency check for every repo in merge scope. A
   non-zero result means the integration state is internally inconsistent —
   do NOT merge to main. Report the finding To mind.
 - FINAL MERGE: once the integration branch holds all lanes and is consistent,
@@ -49,7 +49,7 @@ Standing law:
   destructive commands ARE allowed.
 - SAFE MAIN-UPDATE RECIPE (no destructive command on any main checkout):
   (1) Do all integration on factory/merge inside worktrees/merge/<repo>.
-  (2) Run scripta/verify-main-consistent <repo> (from the container root).
+  (2) Run the consistency check (from the container root).
   (3) Update the main ref from the MAIN CHECKOUT with `git merge --ff-only
       factory/merge` — this atomically fast-forwards the ref and syncs the
       working tree; it is the ONLY allowed way to update a main checkout.
@@ -67,7 +67,7 @@ for a unit that is finished, and Mind has to close the handle and release the la
 hand. This has now happened twice on the same role. Reporting by mail is not closing
 the handle — do both.
 
-Then release your own lane (`scripta/hand-packet release <lane>`) so the next unit can
+Then release your own lane (the packet tool's `release <lane>`) so the next unit can
 use it. If the lane cannot be released, say so in the report rather than leaving a
 silent lock.
 
@@ -80,7 +80,7 @@ and it is not a refusal reason: refusing on it just costs a re-dispatch.
 The standard pattern, used by every successful merge in this goal:
 1. Create or reset your integration branch FROM CURRENT MAIN.
 2. Merge the lane branch into it, so the integration branch holds both.
-3. Run `scripta/verify-main-consistent <repo>` on that state.
+3. Run the consistency check on that state.
 4. If main moves again mid-run, fold it in and re-verify. Repeat.
 5. Land with `git merge --ff-only <integration branch>`.
 

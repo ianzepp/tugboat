@@ -1028,7 +1028,7 @@ The role states why it refused. The Mind then corrects the process by routing th
 vivi task send --project "$ROOT" \
   --from mind --to hand \
   --subject 'unit U-17: parser input validation' \
-  --body 'goal: docs/factory/…/GOAL.md
+  --body 'goal: <goal-doc-path>
 unit: U-17
 predecessor: task-handle-prior commit abc111
 write_scope: crates/parser/src/validate.rs, crates/parser/tests/validate.rs
