@@ -145,9 +145,9 @@ infrastructure is still live**, not from “a summary appeared.”
 
 | Mode | Audience | When | Rebuild processes? |
 |---|---|---|---|
-| **Cold boot** | Mind (true restart) | New session, host restart, boarded/closed window, or live infrastructure **not** proven | Yes — absorb/cleanup Mind paper; re-spawn debt; re-arm missing loops |
+| **Cold boot** | Mind (true restart) | New session, host restart, boarded/closed window, or live infrastructure **not** proven | Yes — absorb/cleanup Mind paper; dispatch registry triage of the backlog; re-spawn debt; re-arm missing loops |
 | **Warm boot** | **Mind only** | Same Mind conversation after **compaction** (or equivalent head-context loss) while children/loops should still be running | Reorient; **required** Auditor + CTO reacquaintance; spawn/re-arm seats/loops only on proven gaps |
-| **Unit resume** | Worker seats only (Hand, Auditor, Planner, Head, Hater, Cadence) | That seat compacted or lost mid-unit context | Never runs Mind management |
+| **Unit resume** | Worker seats only (Hand, Auditor, Planner, Triage, Head, Hater, Cadence) | That seat compacted or lost mid-unit context | Never runs Mind management |
 
 **Self-test (one line):**
 
@@ -214,17 +214,30 @@ schedulers should still be up — that is [Warm boot](#warm-boot-mind-only-post-
 
    Warm boot does **not** run this mass absorb/cleanup pass — only Cold boot
    (or an explicit operator hygiene request).
-3. **Inventory execution state (Rule 2).** On a **true restart**, prior
+3. **Dispatch registry triage over the backlog.** A restart is the moment paper
+   written in a previous world must be re-confirmed against a tree that moved
+   during dormancy. If the project defines a registry-triage seat, inventory
+   the registered backlog — `vivi want list`, `vivi need list`,
+   `vivi goal list` — slice it (~8–12 items per seat, mixed kinds are fine),
+   file one task per slice, and spawn those seats. The seat establishes, against
+   the live repo, whether each item's claim is still true and whether its
+   requirements are present; it decides no architecture, scope, priority, or
+   merit. **Spawn async and integrate on a later Mind turn** — triage verdicts
+   are reports, not state changes. They land **before** a frontier definition
+   gate (a need-definition review) is asked to spend tokens, and before any want
+   is promoted into a need. A project without that seat skips this step and
+   carries the backlog re-check as ordinary work.
+4. **Inventory execution state (Rule 2).** On a **true restart**, prior
    subagent processes are gone: every open harnessed task is spawn debt until
    resumed. Count live processes separately from open handles.
-4. **Scan git dirt and classify.** `git status --porcelain` across the repos
+5. **Scan git dirt and classify.** `git status --porcelain` across the repos
    under management; classify A/B/C. Interrupted work usually shows as
    uncommitted WIP that matches a task's declared write scope — that WIP is
    the interrupted owner's, not foreign dirt. Do not erase or commit it.
-5. **Reconcile committed-but-unclosed.** A unit whose code landed as a commit
+6. **Reconcile committed-but-unclosed.** A unit whose code landed as a commit
    but whose task is still open and whose closeout mail never arrived is
    half-finished: finish the tail the assignment named, then close.
-6. **Recover the "why" from transcripts.** The task body records the *what*;
+7. **Recover the "why" from transcripts.** The task body records the *what*;
    the prior sessions hold the *why*. If the workspace has a transcript search
    tool, use it with distinctive handles: task subject words, task handle ids,
    commit hashes, repo paths. Prefer one or two distinctive handles over a
@@ -232,21 +245,21 @@ schedulers should still be up — that is [Warm boot](#warm-boot-mind-only-post-
    log, and the Mind's own prior mail. The Mind may read the **Mind master
    session** to reconstruct routing; a resumed seat gets only its **own
    delegated session** (file path + line range, never an inlined transcript).
-7. **Resume one seat at a time.** Re-spawn each seat on its existing open
+8. **Resume one seat at a time.** Re-spawn each seat on its existing open
    handle with the [dispatch-contract](#dispatch-contract) pointer; no new
    record is needed. The task body already names write scope and validation.
    Do not paste WIP or a recap into the spawn prompt. Resume in dependency
    order; do not dispatch two seats into the same dirty tree at once.
-8. **Loops.** The only scheduled loop is `cadence_tick` (see
+9. **Loops.** The only scheduled loop is `cadence_tick` (see
    [Cadence](#cadence)). It is **off by default**: the Mind does not arm or
    re-arm it. Verify the host's armed-loop list against the current Mind memo of the
    one `cadence_tick` host task id (rewritten in step 2 if the old map was
    cleaned) only to record what is actually live. A loop claimed in the memo
    but absent from the scheduler is **disabled, not broken** — record it and
    do not recreate it. Only explicit operator enablement justifies a create.
-9. **Report and resume the loop.** Give the operator a short orientation: what
-   was absorbed/cleaned, what remains open, what is dirty, what was resumed.
-   Then proceed to the normal Mind loop.
+10. **Report and resume the loop.** Give the operator a short orientation: what
+   was absorbed/cleaned, what triage was dispatched, what remains open, what is
+   dirty, what was resumed. Then proceed to the normal Mind loop.
 
 The goal is a fast, honest restart: clear dead Mind paper, re-establish what
 was open, what is dirty, and why decisions were made, then re-spawn onto the
@@ -794,6 +807,7 @@ Each role is a Vivi identity with a mailbox and role record.
 | **Mind** | Sees work, assigns roles, integrates results, reconciles completion paper and advances goal/campaign status as units land (Rules 1/6), performs operational capacity analysis, talks to the operator, manages the loop, and keeps every seat as full as possible (Rule 5). | Edit product files, run tests, builds, linters, formatters, or factory suites, re-execute Hand closeout, perform deep product/specialist analysis in its own context (that is Head/Planner/Auditor work), rewrite goal/campaign content, or commit for roles. |
 | **Hand** | Implements **one logical change**, optional sanity check, commits, reports done, turns the seat over. | Wait for GO stamps, erase other work, lower goals, rediscover architecture, run project-wide gates, sit on a multi-family bag, or run tools after `task done`. |
 | **Auditor** | Reviews settled delivery specs or frozen phase ranges; returns `admitted`/`revise` or `clean_pass`/`residual`/`block_range`/`block_ship` via **evidence honesty** (Rule 6). Standing procedure lives on the Vivi **role charter** (same packaging as Heads). | Implement code, commit product work, issue a GO stamp, or re-run the Hand's full validation ladder / real-device suite by default. |
+| **Triage** | Reconciles the registered backlog (wants, needs, goals) against the live repository: is the claim still true, and are the requirements present? Returns one disposition per item. Standing procedure lives on the Vivi **role charter**. Cold boot is its standing trigger. | Implement, fix, lower, promote, close, audit a diff, or judge architecture, scope, purity, priority, or merit. |
 | **Planner** | Goal-forge, goal-check, and delivery lowering into unit graphs. Standing procedure lives on the Vivi **role charter**. | Implement product code, merge, review, or file Hand tasks. |
 | **Hater** | Runs one fresh hostile first-impression pass on one bounded surface for one skeptical audience and reports raw perception evidence. Standing procedure is the Vivi role charter, plus a hater skill if the workspace has one. | Judge merit, inspect hidden rationale, implement, audit, create tasks, or block acceptance or launch. |
 | **Head** (`head-ceo`, `head-cmo`, `head-cpo`, `head-cso`, `head-cto`, `head-cxo`) | Advises on a strategic question; the Mind may select a smaller council of Heads for the periodic phase-close strategic architecture review (see [Feature lifecycle](#feature-lifecycle-and-phase-review)). Standing persona lives on the Vivi **role charter**. | Lower goals, implement, prepare tasks, merge, block production, or re-run product/device verification. |
@@ -816,6 +830,7 @@ vivi task show <handle> --project "$ROOT"
 | Seat | Charter must include | Task body must include |
 | --- | --- | --- |
 | **Auditor** | Freeze → inventory → lenses → **evidence-honesty** verdict schema (Rule 6); re-execute only when named | Handle, repo, base/head (or tip after commit), paths, risk reason; `audit_mode: evidence_honesty` unless a single named `re_execute` command is justified |
+| **Triage** | Read-only bounds, repository-is-truth law, commit-ancestry checks, requirements checklist, per-kind disposition vocabulary, escalation table, report schema, refusals | The item handles (or a slice definition), and the report path if one is wanted |
 | **Planner** | Goal-forge, goal-check, delivery unit fields, refusals | Goal path or description, repo root, planning scope |
 | **Hater** | Cold isolation, raw report schema, zero authority | Exact surface, exposure limit, one audience with priors, excluded context |
 | **Head** | Lens, report schema, boundaries | Question or assignment only |
@@ -870,6 +885,7 @@ work undispatched.
 | Mind | `P0-S2` |
 | Head, Planner | `P1-S2` |
 | Auditor | `P1-S1` |
+| Triage | `P2-S1` |
 | Hand, test, e2e, merge, release, canary | `P2-S0` |
 | Lint, docs, website, Hater | `P3-S0` |
 | Cadence | `P4-S0` |
@@ -1657,13 +1673,13 @@ vivi task dump --project "$ROOT" --status open
 
 ## What Tugboat keeps
 
-- **Boot modes:** Cold boot (true restart — includes Mind absorb + cleanup of stale memos/tasks/etc.), Warm boot (Mind-only post-compaction reorient **plus required Auditor + CTO reacquaintance**), Unit resume (workers). Compaction is role-blind; seats pick the mode by identity + live infrastructure.
+- **Boot modes:** Cold boot (true restart — includes Mind absorb + cleanup of stale memos/tasks/etc. **and registry triage of the backlog**), Warm boot (Mind-only post-compaction reorient **plus required Auditor + CTO reacquaintance**), Unit resume (workers). Compaction is role-blind; seats pick the mode by identity + live infrastructure.
 - **Operating modes:** **Mind** (default — route, Hands implement, correctness gates) and **Direct** (operator-named — Mind implements, sub-agents verify and keep books, working software first). Orthogonal to boot modes. See [Operating modes](#operating-modes).
 - **Vivi:** required companion. Tasks, needs, wants, mail, roles, memos, and
   the board are the **record**, not the executor (Rule 2). CLI law is the
   [Vivi skill](https://github.com/ianzepp/vivarium/blob/main/skills/vivi/SKILL.md).
   Mind drains needs before wants; dispatch of work = task + spawn.
-- **Role hierarchy:** Mind, Planner, Hand, Auditor, optional Hater, Head, Cadence, and `operator@`. A project may add specialized seats; Tugboat does not assume they exist.
+- **Role hierarchy:** Mind, Planner, Hand, Auditor, Triage (project-defined registry reconciliation), optional Hater, Head, Cadence, and `operator@`. A project may add specialized seats; Tugboat does not assume they exist.
 - **Model P + S:** Vivi `model` is a band (`P2-S0`). Mind resolves it to a slug from the host's model inventory. Not planning P1/P2/P3.
 - **Offline fallback:** WAN down → new spawns use the host's local model. Recheck each Mind turn. Do not interrupt in-flight seats.
 - **Memos:** durable context for the Mind and Heads. Cadence does not file them.
@@ -1729,6 +1745,8 @@ vivi task dump --project "$ROOT" --status open
 - **Warm boot without Auditor + CTO:** Reorienting board/loops after compaction but skipping the required reacquaintance pair. Compaction is the reliable trigger for tactical (Auditor) and strategic (CTO) re-grounding; cadence mail does not substitute. File + spawn both (or prove equivalent passes already in flight).
 - **Warm-boot reacquaintance as a seat freeze:** Parking Hands/Planners until Auditor/CTO return, or re-running full suites as “reacquaintance.” Spawn async, keep seats full, evidence honesty / strategic lens only (Rule 6).
 - **Cold boot without Mind paper hygiene:** Restarting seats while leaving unabsorbed Mind inbox, dead `host_task_id` memos, and stale Mind-owned tasks/needs as if they were current. Cold boot step 2 (absorb + cleanup) is required; only worker spawn-debt handles stay open for resume.
+- **Cold boot without registry triage:** Restarting after dormancy without re-confirming the registered backlog against the tree that moved while nothing was running. Wants and needs written in a previous world then keep their old claim, get promoted on it, and reach a frontier gate carrying a premise that died weeks ago. Step 3 covers want/need/goal claims; paper hygiene (step 2) is Mind-owned state and never substitutes for it.
+- **Frontier seat on triage work:** Sending backlog reconciliation to a Head, a CTO, or an Auditor — or hand-walking it in the Mind's own context — because the verdict sounds like a judgment. Deciding *whether an item is still true and startable* is shallow, wide, high-volume work on the cheap band; deciding *whether the approach is right* is the frontier question, and it happens later, on the items triage kept.
 - **Cold-boot cleanup closes worker debt:** Deleting or `task done`-ing open Hand/Planner/Auditor/Head work because “the session died.” That work is spawn debt; re-spawn it. Cleanup targets Mind paper and proven-stale Mind-owned items only.
 - **Worker runs Mind boot:** A Hand/Auditor/Planner/Head/Cadence that compacted starts Warm/Cold boot, board management, or loop re-arm instead of [Unit resume](#unit-resume-worker-seats-only). Workers stay on their handle (Cadence: finish the tick).
 - **Compact Primary Request as current work:** Restarting early-session user text after compact while board and git show different mid-stream state. Compact annex is recent only; Vivi + git + Warm/Unit resume own truth.
