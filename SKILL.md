@@ -661,6 +661,16 @@ The interval backstop exists because the rest are declarable, and a Mind that de
 
 **Two lenses, proportionate to the breakpoint.** The tactical pass is the Auditor's evidence-honesty read of the frozen range, and it answers correctness and test-honesty. The strategic pass asks the architecture question — did this implementation create frameworks, layers, or durable commitments it should not have — and at a sub-goal or wave breakpoint it is `head-cto` (or `head-cxo` for unearned layers) alone. The full Head council stays reserved for phase close and goal close, where the cost matches the commitment.
 
+**Every non-clean verdict is recorded durably.** A `block_range` or
+`block_ship` that exists only as mail prose is invisible to every later
+reader — including [Cadence](#cadence), which scores its [process
+catalog](#process-catalog) from board paper. The Mind's reconcile of an audit
+files one handle per finding: a repair task for the blocked work, or a debt
+task or need whose body carries the audit handle, the blocked paths, and the
+recheck trigger that closes it. `residual` findings get the same treatment. A
+verdict with no handle has no owner, and no later tick can tell it apart from a
+verdict that never happened.
+
 **Still not per unit.** Nothing here re-introduces a per-unit audit. One aggregate range, one dispatch, up to four Auditors by path family or risk cluster. A Hand fix does not fire an audit; the next breakpoint covers it.
 
 ### Verdict calibration and the repair loop
@@ -1327,9 +1337,12 @@ Record `enabled: false`. Do not recreate it without operator enablement.
    `vivi goal list --json` (the campaign working set), and the project
    occupancy signal if one exists.
 3. Score the [process catalog](#process-catalog) against live evidence,
-   including the `pull_forward` lens over registered goals. Also score
-   neglected needs/wants, stale Mind memos, and `mail_hygiene` when the
-   unabsorbed Mind inbox count is ≥ 20.
+   including the `pull_forward` lens over registered goals; every audit handle
+   whose verdict is `block_range` or `block_ship` and whose blocked paths have no
+   owner on the board (`unhandled_block`) — read the handle, since an absorbed
+   verdict is still unowned; and any blocked range whose recheck trigger has
+   elapsed (`stale_block`). Also score neglected needs/wants, stale Mind memos,
+   and `mail_hygiene` when the unabsorbed Mind inbox count is ≥ 20.
 4. Dedup against open tasks, needs, live processes, and the previous mail.
 5. If something new is due, file **mail** `cadence` → `mind`. File a **need**
    only for must-do work that is **not** already a need. Cite existing
@@ -1426,6 +1439,8 @@ charter. Skip a process when the window is empty. Do not invent work.
 | `planner_backlog` | Unlowered goals and planner idle | File + spawn planner |
 | `spawn_debt` | Open harnessed tasks, no live process | Those handles are spawn-dead; re-spawn |
 | `neglected_need` | Open need with no live owner and no disposition | Cite the need; Mind must lower + spawn |
+| `unhandled_block` | An audit verdict of `block_range` or `block_ship` on an audit handle — absorbed or not, since absorption does not retire a handle — whose blocked paths have no owner: no open repair task, no debt handle, no recorded waiver | Cite the audit handle, the verdict, the blocked paths, and the missing owner. Mind files the repair, the debt, or the waiver. Do not dispatch. |
+| `stale_block` | A `block_range` whose repair landed but whose blocked paths were never re-audited, and whose recheck trigger has elapsed | Cite the block handle, the paths, and the repair commit. Mind re-audits those paths or records the waiver. |
 | `unlocked_want` | Want whose precondition is now true, needs are clear | Cite the want; consider promote/dispatch |
 | `auditor_range` | Last **aggregate audit** tip older than ~1h **and** new commits on managed mains | File + spawn auditor (see below). Delivery audits, re-reviews, and verification reports do not advance this tip; only an aggregate implementation audit does. |
 | `cto_range` | Last CTO tip older than ~1h **and** (new main merges **or** `head-cto` schedule overdue) | File + spawn `head-cto` |
@@ -1446,6 +1461,20 @@ four** Auditors by path family, crate, or risk cluster. File
 `re_execute: none` unless a named `block_ship`-class reason needs one
 targeted command; then **spawn**. Integrate `clean_pass` / `residual` /
 `block_range` / `block_ship`. Also required on every Warm boot (`trigger: warm_boot`).
+
+**`unhandled_block`.** Read the audit handles covering the goal's range and their
+verdicts. Read the handle, not the inbox copy: absorbing the mail does not retire
+the handle, and an absorbed verdict is still an unowned one. For each `block_range`
+or `block_ship`, find its owner on the board: an open repair task, a debt
+task or need, or a recorded waiver. File whatever is missing, carrying the
+blocked paths, the audit handle, and the recheck trigger — or record the
+waiver. Do not re-dispatch the audit to rediscover a verdict that is already
+written down.
+
+**`stale_block`.** For each block whose recheck trigger has elapsed, check
+whether its blocked paths have been re-audited since the repair landed. If not,
+re-audit those paths — not the whole range — or record the waiver. A
+`block_range` closes when its paths are read again, not when no one objects.
 
 **`cto_range`.** Same kind of window. File + spawn `head-cto` (small council
 only if the window warrants it). Lens: durable assumptions, seam placement,
