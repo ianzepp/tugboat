@@ -488,6 +488,11 @@ report means no completion.**
 
 The Hand has the diff context and commits its own work. The Mind **reconciles the completion paper** (handle, commits, write scope, declared validation claim) or routes an Auditor; it does not re-run product tests. The Mind does not commit for a Hand.
 
+A commit is not a landing (see [Handoff protocol](#mind-to-role)). Where the project
+separates integration from implementation, the Mind files the integration task during
+the reconcile; an unmerged commit behind a released checkout is merge debt and needs a
+named owner before the unit counts as done.
+
 In [Direct](#operating-modes) the Mind commits the work it just did. It
 still does not commit for a Hand.
 
@@ -621,6 +626,8 @@ names only the protocol-level owners below.
 5. **V5 — Mind reconciles; Mind does not re-test.** Mind checks claims against commits and receipts. Mind does not re-run the unit ladder, full test suite, or real-device acceptance by default, and does not file an Auditor as a disguised re-execution of the Hand's suite.
 6. **V6 — Auditor default is evidence honesty.** Phase audit inputs are frozen base/head (or commit set), paths, Hand closeout receipts, and named authorities. The Auditor challenges whether claims are honest and complete (scope breach, weakened tests, missing receipt fields, architectural residual). Re-execution of product tests or real devices is **not** the default; it requires a named command and a `block_ship`-class reason that cannot be settled from artifacts.
 7. **V7 — Receipt is the interface.** Downstream roles (Mind, Auditor, Heads) consume the Hand's commit list, validation claim, and closeout receipt (hashes, machine, backend). They do not regenerate that evidence without a new product change or a named risk.
+
+   **A check that never executed is not a validation claim.** A Hand that reports a declared acceptance check as *blocked* — the surface could not be built, a dependency was absent, the harness refused — has produced a gap in the receipt, not a passing result. The reconcile routes that clause to a verifier with what it needs to run it, and the unit is not treated as accepted until it does. An unexecuted green is exactly where a regression hides, because nothing contradicts the claim: the same failure mode as a check that cannot fail.
 8. **V8 — Council is not a third verifier.** Heads use receipts and tactical audit findings as inputs. They do not re-run suites, real-device gates, or project ladders.
 
 **Allowed thrash:** repeated **narrow** checks while debugging a red failure are fine. **Forbidden thrash:** full ladder or full real-device sweep after every minor edit; multiple "final" packages after green; re-run after task done; Auditor or Mind replaying the Hand's closeout suite without a named defect.
@@ -651,6 +658,20 @@ When a task's write scope includes a **shared hot module** — one that other un
 | **Isolate** | The task is long or exploratory | File the task with whatever isolated checkout the project defines. |
 
 The goal: **never have two Hands editing the same shared module simultaneously on a shared tree.** Leaf units that do not appear in other units' dependency chains are safe for parallel work.
+
+**The Mind is a writer too.** A goal document, a campaign file, a delivery artifact, any
+record the Mind advances status in — each is a shared surface, and the rules above apply
+to the Mind's own edits: do not edit one in the same window a seat has it open, and do not
+commit it while a seat holds uncommitted edits in it.
+
+**Commits are file-granular in a shared checkout.** Even with a path-limited
+`git commit -- <paths>`, staging takes the whole current content of those paths. So one
+writer's commit can publish another writer's half-finished edit in the same file, under
+the wrong message. Disjoint hunks are not isolation; separate checkouts are. A record has
+**one writer**: where a document is the Mind's (a goal or campaign file), the Mind is its
+sole writer and a seat that needs a change to it proposes the change — in its report, or
+in the artifact it owns — rather than editing it. When a seat must own a document for a
+while, the Mind queues its own edits behind that seat instead of interleaving them.
 
 When a Hand reports a build blocked by foreign WIP, the Mind classifies: is the foreign edit on a shared hot module? If yes, serialize that surface for the next wave. The Hand does not debug the foreign failure — it reports the blockage and the Mind routes it.
 
@@ -739,6 +760,14 @@ slug in that band. Throttle, 429, or session death → next slug in the
 same band, same handle. Climb P only if the whole band is dead. Clear
 `provider` and `thinking` on the role; do not write a slug back into
 `model`.
+
+A throttle is a **present** condition, not a property of a band. Check the host's
+quota signal before treating a band as unavailable — a rate limit observed an hour
+ago says nothing about now — and prefer moving to another pool inside the band over
+parking the work. An exhausted **quota** and a saturated **concurrency** ceiling (too
+many live seats on one provider) are different constraints: the first changes which
+slug you pick, the second only how many, and neither is a reason to leave dispatchable
+work undispatched.
 
 | Role | Band |
 | --- | --- |
@@ -897,10 +926,20 @@ raw goal
   → Auditor: delivery audit
   → Mind: admit or return for lowering
   → Hand: implement admitted units and unblock successors
+  → Mind: file the integration task — a project merge/release seat lands the commit
   → stage/phase cutoff: freeze aggregate range
   → Auditor: implementation audit
   → Mind: close, record residual debt, or route blocking repair
 ```
+
+**A commit is not a landing.** Where the project separates integration from
+implementation (a merge or release seat), the Mind files that task as part of the
+completion reconcile (Rule 6), exactly as it files the next unit. A checkout or lane
+released while its work is still ahead of the integration branch is **merge debt**:
+unowned, invisible on the task board, and it does not resolve itself — an orphaned
+commit sits behind a released lock and nothing in the loop will look for it. A seat
+that closes with unmerged work names it as merge debt in its report, with the branch
+and commit, so a Mind without that seat's context can act on it.
 
 The Planner produces the delivery artifact; it does not file Hand tasks. The Mind owns admission and creates Hand tasks only from an audited delivery unit. The Auditor receives either a settled delivery specification or the frozen aggregate range at the named phase boundary, never an informal request to "check it."
 
