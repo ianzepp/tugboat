@@ -115,8 +115,12 @@ git plus receipts. Correctness debt becomes ordinary needs.
 The Mind does not brief sub-agents in chat. Chat is not the assignment.
 
 1. Record the work in Vivi as a **task** (or a **need** until it is lowered).
-2. Spawn the role with a **pointer only**: role id + handle id.
-3. The worker loads its charter and that handle, follows this skill, and
+   The send mints the item's backlog graph node.
+2. Bind the attempt: `vivi graph activate <handle> --task <handle>
+   --project $ROOT`. Active nodes leave the `vivi step` manifest, so
+   in-flight work is never re-offered to the next dispatch decision.
+3. Spawn the role with a **pointer only**: role id + handle id.
+4. The worker loads its charter and that handle, follows this skill, and
    reports through the same handle.
 
 The entire spawn / opening prompt is this shape. Nothing else:
@@ -921,9 +925,15 @@ one turn. On each turn, the Mind performs the short observation pass (steps
 1–4), chooses **one** routing branch from step 5, emits the receipt, and
 releases the operator channel.
 
+**Observation is bounded and named.** The pass reads fixed-shape surfaces,
+not raw dumps: `vivi step --json` (the dispatch/exception manifest over the
+backlog graph), `vivi board --process --graph --json` when liveness matters,
+`vivi mailspace watch --once --write-cursor` for deltas, and `vivi task show`
+on the one handle selected for work. See [Context economy](#context-economy).
+
 1. Reconciles execution state under Rule 2: **running** (live process), **dispatching** (handle + spawn this turn), **idle** (no process), or **spawn debt** (executable open handle without a live owner). Use the project's occupancy signal when it has one.
 2. Inventories the Mind board by kind ([Board kinds](#board-kinds)): open **needs** (priority backlog), open **wants** (deferred backlog), open **tasks** (active assignment / spawn debt), and **mail** (communication to integrate). Drain needs before wants.
-3. Inventories ready independent implementation units, unlowered goals and child candidates, completed frozen ranges eligible for audit, and spawn debt.
+3. Consumes the step manifest: `dispatches` are the ready independent implementation units (readiness is computed from the graph, including later-stage and cross-goal items whose named dependencies are met — the `pull_forward` fact); `exceptions` route by reason — `want_requires_promotion` (promotion stays a requested action), `lowered_awaiting_units` (dispatch the units, not the parent), `no_done_when` (back to the Planner), `item_missing` (hygiene), `not_settled` (settle first). Unlowered goals, completed frozen ranges eligible for audit, and spawn debt complete the inventory.
 4. Checks operator/role **mail**, dirty files; classifies dirt A/B/C. Integrate mail into needs/wants/tasks when it discovers work; do not leave must-do items as chat-only. For every claimed blocker, name the exact affected dependency boundary and separately inventory unaffected work. A blocker with no live repair/diagnostic/decision owner is the highest-priority spawn debt (Rule 4).
 5. Chooses the first material branch below and performs only that coherent batch:
    - **Returned reports:** integrate one completed batch and route only its immediate repairs or successors. Integration means Rule 6 reconcile of paper (handle, commits, scope, validation claim) — plus advancing the goal/campaign status records for the landed units (Mind-owned lifecycle, Rule 1) — not re-running product tests. Dispatch a recoverable blocker to the correct Hand, Planner, Head, or project integration seat; unaffected seats remain eligible. Deferred follow-ups become **wants**.
@@ -1010,6 +1020,47 @@ example, backgrounding a long suite and exiting "to report later") has no
 session left to report from — the run is lost. Long-running validation runs
 synchronously inside the worker's own session.
 
+## Context economy
+
+The Mind's context is capital on every host — hosted Minds pay in latency
+and compaction loss; local Minds pay in decode speed and rebuild minutes.
+The law is the same for both.
+
+**Three classes of held context:**
+
+- **Law** — this skill and the posture card. Capped and stable.
+- **Picture** — open handles, readiness, liveness, dirt. **Derivable.**
+  Re-derive per pass from the bounded reads below; never accumulate it in
+  chat or memory.
+- **Proceedings** — tool output, report bodies, the operator conversation.
+  The growth region; the only class that legitimately occupies context
+  long-term.
+
+**The rules:**
+
+1. **The picture comes from named bounded reads.** `vivi step --json` is
+   the intake; `vivi board --process --graph --json` when liveness matters;
+   `vivi mailspace watch --once --write-cursor` for deltas; `vivi task show`
+   on the one handle selected for work. Raw dumps and graph exports are
+   audit surfaces, not loop intake. Reading a raw listing where a bounded
+   command exists is the defect, whatever the host.
+2. **Pointers and verdicts, never bodies.** The dispatch contract bounds
+   what goes out; the settle flow bounds what comes back — children settle
+   with fixed-field receipts, transitions record `step_decision` events,
+   and the Mind holds handles plus the manifest, not payloads. A report
+   body over a cap lives on its Vivi handle and is read by the seat that
+   needs it.
+3. **One posture memo, rebuilt on the watermark — never at the window
+   edge.** The card carries only what is genuinely Mind-held: the rebuild
+   watermark, last aggregate-audit tips per repo, operator holds, armed
+   loop ids. Live handles, branches, and readiness are the Picture and do
+   not belong on the card; they are re-derived each pass. Riding the
+   context window to its edge turns a bounded rebuild into an expensive
+   one on every host that has compaction.
+
+Enforcement of these rules is host-side (hooks where the host supports
+them); the prose is the law, not the gate.
+
 ## Handoff protocol
 
 Dispatch under Rule 2, let the role execute, and require its report through the
@@ -1087,9 +1138,18 @@ A Hand completes a task by:
 2. While coding: narrow checks only (Rule 6 V2).
 3. After the last product edit: optional one sanity check of this change (Rule 6 V3). Not a project-wide gate.
 4. Committing its work.
-5. Closing the task with `vivi task done`.
+5. Settling the task with `vivi task done --verdict <v> --repo <repo> --tip <sha>`
+   — the receipt flags are the validation claim the record carries; the item's
+   graph node completes and dependents unlock mechanically.
 6. Replying one line: `done handle <handle>. commit abc123. unit <id>.`
 7. **Stopping** (Rule 6 V4). The seat turns over. No further tests after done.
+
+On the settle notification, the Mind (or host wrapper) runs
+`vivi step --apply <handle> --project $ROOT` once: idempotent, never settles
+work itself, records the `via=step-apply` decision, and — when a judgment
+provider is configured — screens the receipt into the calibration corpus in
+shadow. The Mind's completion reconcile is then reading the step decisions
+and exceptions, not re-deriving readiness.
 
 A blocked Hand is also one line (what blocked, what follow-up). If the bag is
 wrong, file a **need** with must-do / repro / boundary, then stop.
@@ -1448,6 +1508,14 @@ that defect when the whole Mind inbox (not only cadence mail) is ≥ 20.
 Tugboat names the default rows. A project may add rows on the cadence
 charter. Skip a process when the window is empty. Do not invent work.
 
+The detection half of `fill_lanes` (READY units), `pull_forward` (named
+deps met, including later-stage items), and unlocked wants is a query, not
+an inference: `vivi graph ready` / `vivi step --json` compute readiness
+across kinds from the backlog graph's edges. The cadence seat reads the
+computed frontier and applies judgment to what remains — ranking,
+neglect-versus-valid-deferral, hygiene — rather than re-deriving readiness
+by reading.
+
 | Process | Due when | Recommend |
 | --- | --- | --- |
 | `pull_forward` | A registered goal (`vivi goal list`) has a later-stage, sibling-track, or other-goal item whose **named** deps are already satisfied, and usable seats are free (or Mind is treating a stage number as a gate) | File + spawn the named role. Cite `gol_*` + stage/unit. Tell Mind it can run now. |
@@ -1538,6 +1606,14 @@ for "I need help" or "I want something from someone."
 | **want** | Something **queued** to work when appropriate or when a precondition is met — general backlog, not a fire drill | Deferred intake. Work only after open needs are cleared or honestly deferred with a recheck. |
 | **mail** | **Communication** — questions, findings, reports, handoffs that are not themselves the work queue | Signals and conversation. Not a substitute for need/want/task. |
 
+Work items are **graph citizens at send**: every task/need/want mints a node
+in the project's `backlog` graph, `--depends-on` (any work-kind handle)
+creates the prerequisite edge, and readiness is computed across kinds. An
+unlocked want surfaces as a ready want node — promotion remains a requested
+action (`want promote`) and never fires because a dependency completed.
+Lowering is a graph fact: `vivi need bind` attaches unit tasks, and the
+need auto-completes when every unit lands.
+
 ### Who files what to whom
 
 Operator, Heads, Cadence, or any role that discovers required or deferred work
@@ -1578,6 +1654,30 @@ language. Human decisions and questions go as **mail** (often `To: operator@`
 or the deciding role), with a default and options when useful. If the outcome
 of that decision is work that must happen soon, file or keep a **need** for
 the work itself.
+
+## Dependency grammar
+
+There are two kinds of "depends on" and they live in different places.
+
+- **Structural dependencies** cite a handle: `--depends-on <task|need|want>`
+  on any work-kind send becomes a prerequisite edge in the backlog graph,
+  validated before the send creates anything. Readiness across kinds — a
+  task waiting on a need, a want waiting on a task — is computed from these
+  edges, not inferred by reading. Multi-recipient items are one work item:
+  cite any copy; canonicalization and sibling completion are automatic.
+- **Ambient conditions** — "when a seat is free", "after the operator
+  approves", time windows, capacity — stay prose in the body and are
+  evaluated by the host at dispatch. They are **never encoded as topology**:
+  an edge named "seats free" manufactures false readiness. Eligible means
+  `graph ready` **and** the ambient checks pass; both are required, neither
+  substitutes for the other.
+
+**Lowering is binding, not importing.** When a need breaks into recorded
+tasks, `vivi need bind <need> <task>...` attaches the units and the need
+auto-completes on the join (reopening a unit re-opens the parent). Imported
+Mermaid graphs (`graph import` / `apply`) are for non-item topology —
+pipelines, environment flows — not for delivery waves, so work is never
+double-represented in two graphs.
 
 ## Vivi command reference
 
@@ -1652,6 +1752,15 @@ vivi want promote --project "$ROOT" --for mind <handle>   # when a want becomes 
 vivi mailspace watch --for mind --project "$ROOT" \
   --once --write-cursor --cursor-file "$ROOT/.vivi/mind-watch.cursor"
 
+# Bounded observation: the dispatch/exception manifest (loop intake)
+vivi step --project "$ROOT" --json
+vivi step --apply <settled-handle> --project "$ROOT"   # idempotent; records via=step-apply
+
+# Dependency substrate (any work-kind handles; fail-fast validation)
+vivi task send ... --depends-on <handle>               # also need send / want send
+vivi graph activate <handle> --task <handle> --project "$ROOT"   # dispatch binding; bare id = backlog
+vivi need bind <need-handle> <task-handle> --project "$ROOT"     # lowering join
+
 # Memo policy: Mind and Heads use memos; Hands, Haters, and Cadence do not
 vivi memo list --project "$ROOT" --for mind
 vivi memo save --project "$ROOT" --for mind \
@@ -1694,6 +1803,13 @@ vivi task dump --project "$ROOT" --status open
 - **Seat turnover (Rule 5):** a Hand assignment is capital on a shelf until done; size one logical change so seats turn over. Do not maximize throughput by stuffing a theme into one bag, and do not mint micro-units whose process exceeds the product.
 - **Vivi-first communication:** keep routing on the board, not in chat. Spawn
   prompts are the [dispatch contract](#dispatch-contract) only.
+- **Backlog graph substrate:** work items are graph citizens at send
+  (`--depends-on` any work-kind handle = edge; readiness computed across
+  kinds); lowering is `need bind` with join completion; dispatch binds with
+  `graph activate`; the Mind observes through `vivi step` and the bounded
+  reads of the [Context economy](#context-economy). The authority map,
+  verdict vocabulary, and close gate are unchanged — what changed is the
+  cost of observation and routing.
 - **Dispatch contract:** file the work, then spawn role + handle. No narrative
   brief in the opening prompt. Worker reports through the same handle.
 - **Blocker routing (Rule 4):** recoverable blockers become live Hand, Planner, Head, or project-integration assignments immediately; block only their exact dependency boundary and keep unaffected seats moving. A fleet stop requires a proven operator/external deadlock, not uncertainty.
