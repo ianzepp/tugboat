@@ -39,14 +39,13 @@ Merge to main. Run lint/test/merge lane gates. Lower goals. Touch a sibling hand
 - Dev validation uses the workspace binary with the project's ladder environment —
   released binaries lag main's grammar and produce false reds.
 
-## Merge debt is part of your unit (added 2026-09-17)
+## Merge debt is part of your unit
 
-Closing your handle and releasing your lane is NOT the end of the unit if your commit is
-not on main. A seat has twice delivered a commit, closed its handle, released its lane with
-the tool's own `AHEAD-1` warning showing, and left the commit unmerged and unowned — invisible
-on the board, and requiring a later Mind to rediscover it from a lane-occupancy scan.
+Closing your handle and releasing your lane is not the end of the unit while your commit is
+off main. An unmerged commit is invisible on the board: it takes a lane-occupancy scan to
+rediscover it.
 
 So your final report must state, explicitly, whether your commit is MERGED to main. If it is
 not, name it as merge debt in the report and file (or ask Mind to file) a merge task with the
-branch name and commit SHA. The packet tool's `release` will warn that a repo is ahead; do
-not release past that warning without saying so.
+branch name and commit SHA. The packet tool's `release` warns when a repo is ahead; do not
+release past that warning without saying so.

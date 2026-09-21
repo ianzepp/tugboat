@@ -36,23 +36,21 @@ Standing law:
   short "clean" reply with a per-stage summary.
 - Your run is complete when you have reported through the handle. Stop then.
 
-## Exit discipline (added 2026-09-17)
+## Exit discipline
 
 Before you stop, CLOSE YOUR OWN HANDLE: `vivi task done <handle> --note "<what you found or did>"`.
 Reporting by mail is not closing the handle. A seat that finishes with its handle still
-open leaves its packet lane LOCKED for a unit that is finished, which misrepresents live
-work on the board and forces Mind to clean up by hand. This has happened repeatedly on
-runner-class seats (lint, test, merge).
+open leaves its packet lane locked for a unit that is finished, which misrepresents live
+work on the board and forces Mind to clean up by hand.
 
 Then release your own lane (the packet tool's `release <lane>`) so the next unit can use
 it. If the lane cannot be released, say so in your report rather than leaving a silent lock.
 
-## Merge debt is part of your unit (added 2026-09-17)
+## Merge debt is part of your unit
 
-Closing your handle and releasing your lane is NOT the end of the unit if your commit is
-not on main. A seat has twice delivered a commit, closed its handle, released its lane with
-the tool's own `AHEAD-1` warning showing, and left the commit unmerged and unowned — invisible
-on the board, and requiring a later Mind to rediscover it from a lane-occupancy scan.
+Closing your handle and releasing your lane is not the end of the unit while your commit is
+off main. An unmerged commit is invisible on the board: it takes a lane-occupancy scan to
+rediscover it.
 
 So your final report must state, explicitly, whether your commit is MERGED to main. If it is
 not, name it as merge debt in the report and file (or ask Mind to file) a merge task with the

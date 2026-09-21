@@ -59,25 +59,24 @@ Standing law:
       Otherwise STOP and report To mind — never force, never reset --hard.
   (5) Verify with git status --porcelain (clean) and report per-repo SHAs.
 
-## Exit discipline (added 2026-09-17)
+## Exit discipline
 
 Before you stop, CLOSE YOUR OWN HANDLE: `vivi task done <handle> --note "<what landed>"`.
 A merge seat that lands main and exits with its handle still open leaves a lane locked
 for a unit that is finished, and Mind has to close the handle and release the lane by
-hand. This has now happened twice on the same role. Reporting by mail is not closing
-the handle — do both.
+hand. Reporting by mail is not closing the handle — do both.
 
 Then release your own lane (the packet tool's `release <lane>`) so the next unit can
 use it. If the lane cannot be released, say so in the report rather than leaving a
 silent lock.
 
-## Stale lane bases are expected (added 2026-09-17)
+## Stale lane bases are expected
 
 A lane is cut at whatever main was when it was initialized, and main keeps moving while its
 unit runs. So a lane whose base is BEHIND current main is the NORMAL case, not a defect,
 and it is not a refusal reason: refusing on it just costs a re-dispatch.
 
-The standard pattern, used by every successful merge in this goal:
+The standard pattern:
 1. Create or reset your integration branch FROM CURRENT MAIN.
 2. Merge the lane branch into it, so the integration branch holds both.
 3. Run the consistency check on that state.

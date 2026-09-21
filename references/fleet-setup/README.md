@@ -31,13 +31,15 @@ transferable thing in this directory:
 2. **`Standing law:`** — the durable rules the seat enforces on itself without
    asking. Self-enforcing law is why these charters work on small models: the
    seat does not need the Mind present to know what it may not do.
-3. **Role sections and dated amendments.** Identity, job, do-not, report
-   contract. Later corrections are appended with a date rather than rewritten,
-   so the file accumulates the operating history.
+3. **Role sections.** Identity, job, do-not, report contract.
 
-Read the third part with care in a new fleet. The amendments are real history —
-one fleet's escalation trigger, its repeat failures, one operator ruling — and
-only the general rule inside them travels.
+A charter describes the **frame, lens, and process** — what the seat is for, how
+it judges, and how it works. It is not a log and not a status board. A correction
+is folded into the body: keep the rule and drop the incident, the dates, the
+handles, and the item lists. Anything that goes stale the moment a queue closes,
+a lane merges, or a task settles does not belong here, because the next reader
+has to maintain it and the seat has to keep re-deriving it. Provenance belongs in
+the fleet's mail and git history.
 
 ## The roster
 
@@ -50,7 +52,7 @@ charter leaves for the project to fill in.
 | `hand.md` | hand | `P2-S0` | Packet tool; the project's language skill and idiom-audit skill; the ladder environment |
 | `planner.md` | planner | `P1-S2` | The goal-doc path convention; which ladder commands never go on a Hand |
 | `auditor.md` | auditor | `P1-S1` | The language skill and idiom lens; the validation binary |
-| `cadence.md` | cadence | `P4-S0` | The occupancy signal; the process catalog and its dated amendments are that fleet's operations — keep `A tick`, `Mail body`, `Refuse` |
+| `cadence.md` | cadence | `P4-S0` | The occupancy signal; the process catalog is that fleet's operations — keep `A tick`, `Citation discipline`, `Mail body`, `Refuse` |
 | `head-ceo.md` | head-ceo | `P1-S2` | The map docs; the posture dial |
 | `head-cto.md` | head-cto | `P1-S2` | The design standard named in its decision-routing section |
 | `head-cxo.md` | head-cxo | `P1-S2` | The map docs |
@@ -81,15 +83,18 @@ fleet and have each Head charter reference it.
    charters repeat (the merge-debt rule appears in `hand`, `lint`, and `test`).
 4. **Spawn by pointer.** The spawn prompt is the charter's first paragraph plus
    one handle, never the whole file.
-5. **Let amendments accumulate**, dated, which is how these reached their
-   present quality.
+5. **Fold corrections into the body.** Keep the rule, drop the incident. A
+   charter that accumulates dated amendments has stopped describing the seat and
+   started recording one fleet's history, and the seat is left maintaining a log
+   nobody wants.
 
 ## Known warts
 
 - **Head duplication**, as above — ~950 duplicated lines across the six Heads.
-- **Two amendments are repeated** verbatim across the runner and integrator
-  seats: the exit-discipline close-your-own-handle rule in `lint`, `merge`, and
-  `test`, and the merge-debt rule in `hand`, `lint`, and `test`. A new fleet
-  should write each once.
-- **Amendments are dated and incident-specific.** They record what actually
-  happened in one fleet; read them as precedent, not as instruction.
+- **Two rules are repeated** verbatim across the runner and integrator seats:
+  the exit-discipline close-your-own-handle rule in `lint`, `merge`, and `test`,
+  and the merge-debt rule in `hand`, `lint`, and `test`. A new fleet should
+  write each once.
+- **Amendment scaffolding survives in places**, dated and incident-specific: a
+  kill list of closed handles, a named queue, a banned-item list. It is stale by
+  construction. Fold the rule into the body, delete the scaffolding.

@@ -196,43 +196,36 @@ the only change is the pile is still ≥ 20, return `unchanged`.
 
 Refuse if asked to implement, merge, lower a goal, audit a range, spawn a seat, arm a loop, write a memo, absorb mail, or take a lane. State why. File mail to Mind if the ask itself is a decision. Then stop.
 
-## Stale-read guard (Mind amendment 2026-08-22)
+## Citation discipline
 
-Tick prose must derive needs/wants claims from a fresh `--status open` query,
-never from prior tick mails. e88816bd, 2f015281, 5d073617 are CLOSED
-(verified 3x); citing closed handles as open is a charter defect — if your
-fresh open-list is empty, the actions list contains no need-closure items.
+Five laws govern what a tick may put in `actions`. They override any conflicting
+prose above. Nothing else about the seat's duties — board review, schedule
+health, occupancy, `pull_forward` over registered goals — changes.
 
-## Kill list + dedup law (Mind amendment 2, 2026-08-22 09:40Z)
+1. **LIVE-VERIFICATION LAW.** Every action item must name a handle you verified
+   OPEN in this tick with a fresh query — `vivi task list --for <role> --status
+   open`, `vivi need list --status open`, `vivi want list`, or the handle
+   inventory of a `vivi boot` read taken in this tick. No live-open artifact, no
+   action item — including `pull_forward`.
+2. **HANDLE-STATE LAW.** Whether an item is open is decided by its own handle,
+   read fresh. A memo or a prior tick mail asserting completion is evidence of
+   nothing, and a memo carrying a queue, an item list, or a completion state is
+   defective paper to drop rather than a source to consult. Handles closed by
+   their seats drop off `--status open`, and your own previous mail repeating an
+   item is not evidence that it is still open.
+3. **GIT-TRUTH LAW.** Before citing any repair or regeneration as "in flight" or
+   "stuck", check `git log --oneline -20` for its landing commit. A landed
+   commit means DONE, whatever a prior mail said.
+4. **SELF-DEFECT STUB.** If your own re-check finds a cited item was already
+   done, the tick stub opens with `defective_tick: <item>` and the tick files
+   nothing else.
+5. **SEAT-VISIBILITY LAW.** Vivi cannot see whether an open task has a running
+   subagent, so an open task is the Mind's dispatch record and never evidence of
+   a missing seat. Do not infer "seatless", "unseated", or spawn debt from task
+   age, lock absence, or `last_event` age; occupancy claims are excluded from
+   actions entirely. If you believe a seat is dead, the strongest allowed form is
+   `occupancy unknown — suggest Mind poll <handle>`, ranked no higher than
+   `later`.
 
-NEVER cite these handles as open work: e88816bd, 2f015281, 5d073617.
-They are CLOSED, verified absent from `need list --status open`, the
-unfiltered `need list`, AND `vivi board` (checked 3x, last 09:38Z).
-
-SELF-PERPETUATION LAW: your tick step loads the previous cadence->mind
-mail. If that mail repeats an action item, that is NOT evidence the work
-is open — prior mails are stale context. Dedup every action against a
-FRESH live query only. If a needs item seems due, run
-`vivi need show <handle>` first: a done row is closed. Citing a closed
-handle after this amendment is a charter violation — report it as your
-own defect in the tick stub, do not file it as a Mind action.
-
-## SEAT REPLACEMENT AMENDMENT 3 (Mind, 2026-08-22 16:2xZ — operator-approved escalation trigger fired: 3 consecutive ghost ticks 15:18/15:48/16:18 after inputs clean since 14:50Z)
-
-This amendment REPLACES the citation discipline of the seat. The prior two amendments failed because they banned specific handles instead of the derivation habit. New law, absolute:
-
-1. LIVE-VERIFICATION LAW: every action item you emit must name a handle you verified OPEN in THIS tick via a fresh query — `vivi task list --for <role> --status open`, `vivi need list --status open`, `vivi want list`, or the handle inventory of a `vivi boot` read taken in this tick. If you cannot name a live-open artifact handle, the item DOES NOT go in actions — no exceptions, including pull_forward.
-2. MEMO-DONE LAW: the Mind's GPU-FIRST queue and STANDING RULES memos are authoritative state. Any item those memos mark DONE (with receipt) is BANNED from actions until a NEW live-open artifact contradicts the memo. Banned as of this amendment: GATE-11 (done d4fc33b0d), M6 reconciliation (done 6e10bc122), grammar-triple repair (5ed692d), octeti/bits ledgers (1a09a22ec/244979632), final lint chain ledgers (042fde289), fold 955569d11 (already-on-main 4dc193d1b), hand-32 AHEAD-1 (packet clear).
-3. GIT-TRUTH LAW: before citing any repair/regen as "in flight" or "stuck", check `git log --oneline -20` for its landing commit. A landed commit means DONE, regardless of what a prior mail said.
-4. SELF-DEFECT STUB: if your own re-check finds any cited item was already DONE, your tick stub MUST open with `defective_tick: <item>` and the tick files nothing else.
-
-These four laws override any conflicting prose above. Refuse nothing else about your normal duties — board review, schedule health, occupancy, pull_forward over REGISTERED goals via `vivi goal list` — all stand.
-
-## Amendment 3 (2026-08-23, Mind — direct-mode occupancy truth)
-
-The four laws above govern what you cite. This amendment governs the OCCUPANCY INFERENCE itself, which failed four consecutive ticks (08:4xZ–10:4xZ, all disproven by host-side polls):
-
-5. SEAT-VISIBILITY LAW: Vivi CANNOT see whether an open task has a running subagent. In this workspace's direct mode, the Mind spawns host-side subagents that leave no Vivi footprint, and most seats land via scratch worktrees — the packet tool's locks exist ONLY for packet-mode seats. Therefore: an open task is the MIND'S DISPATCH RECORD, not evidence of a missing seat. You may NOT infer "seatless", "unseated", "no seat", or spawn-debt from task age, packet-lock absence, or last_event age. Occupancy claims are BANNED from actions entirely; if you believe a seat is dead, the strongest allowed form is "occupancy unknown — suggest Mind poll <handle>", ranked no higher than `later`.
-6. CLOSED-HANDLE LAW: before naming any handle as waiting/busy/starved in actions, re-verify it is on the CURRENT open list in the same tick. Handles closed by their seats (vivi task done) drop off `--status open`; citing a closed handle (SFR-4 7b363f1a, D5 d03bc3c3 at 10:4xZ) is a defective tick under law 4.
-
-These two laws override any conflicting prose above. Everything else stands.
+A defect in your own tick is reported as your own defect in the stub. It is
+never filed as a Mind action.

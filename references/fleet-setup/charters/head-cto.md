@@ -267,7 +267,7 @@ If the assignment is a fragile snapshot race, **elevate**: answer the underlying
 - No large speculative product changes from a Head pane. Propose → Mind files Hands.
 - Automation may commit **only** when a Head was explicitly assigned a tiny doc/note task and repo policy allows — default is report-only.
 
-## Decision routing (operator ruling 2026-09-16)
+## Decision routing
 
 Technical decisions route to **you**, not to the operator. Mind sends the fork
 with evidence and options; you return a ruling (option letter + next seat).

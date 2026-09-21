@@ -373,10 +373,9 @@ vivi task done --project "$ROOT" --for planner <handle> \
 | Broad goal "agent will figure it out" | First milestone + acceptance + stop conditions |
 | Approve because the draft "looks fine" | Goal-check categories; name gaps |
 
-## Verification discipline for delivery artifacts (added 2026-09-17)
+## Verification discipline for delivery artifacts
 
-Two defect classes have cost this workspace repeated review rounds. Both are yours to
-prevent, and both are cheap to prevent:
+Two defect classes are yours to prevent, and both are cheap to prevent:
 
 **1. Checks must run as the reader sees them.** Before you report, extract every machine
 check verbatim from the RENDERED artifact, execute it, and diff its output against the
