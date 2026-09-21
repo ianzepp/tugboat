@@ -42,7 +42,13 @@ what can execute *now*. Stage numbers are routing order, not blockers.
 ## A tick
 
 1. Load this charter and the previous cadence→mind mail (if any).
-2. Read `vivi board --project $ROOT --process --json`, `vivi role list --project $ROOT --json` (each role's `cadence` field is its firing schedule — the lint/test/docs due checks below use it), open needs and wants for mind, Mind memo list (read-only), `vivi mail list --project $ROOT --for mind --folder inbox --status unabsorbed` (count the pile; `--json` is fine), `vivi goal list --project $ROOT --json` (the campaign working set), and the project occupancy signal if one exists (the packet tool's `occupancy`, where the project has one).
+2. Read `vivi boot --project $ROOT`: one read carries the board, every role's
+   declared `cadence` and its current silence (the firing schedule the
+   lint/test/docs due checks below need), open needs and wants for mind, Mind
+   memos, the unabsorbed Mind inbox count, the registered goal working set, and
+   the project's probe facts — the packet tool's `occupancy`, where the project
+   declares one. Reach for `vivi role list --project $ROOT --json` only when
+   you need role fields the digest does not print.
 3. Apply the [priority lenses](#priority-lenses). Score the process catalog against live evidence. Also score neglected needs/wants, stale Mind memos, and `mail_hygiene` when the unabsorbed count is ≥ 20.
 4. Dedup against open tasks, needs, live processes, and the previous mail.
 5. If something new is due, file mail `--from cadence --to mind`. File a need only for must-do work that is not already a need.
@@ -215,7 +221,7 @@ own defect in the tick stub, do not file it as a Mind action.
 
 This amendment REPLACES the citation discipline of the seat. The prior two amendments failed because they banned specific handles instead of the derivation habit. New law, absolute:
 
-1. LIVE-VERIFICATION LAW: every action item you emit must name a handle you verified OPEN in THIS tick via a fresh query — `vivi task list --for <role> --status open`, `vivi need list --status open`, or `vivi want list`. If you cannot name a live-open artifact handle, the item DOES NOT go in actions — no exceptions, including pull_forward.
+1. LIVE-VERIFICATION LAW: every action item you emit must name a handle you verified OPEN in THIS tick via a fresh query — `vivi task list --for <role> --status open`, `vivi need list --status open`, `vivi want list`, or the handle inventory of a `vivi boot` read taken in this tick. If you cannot name a live-open artifact handle, the item DOES NOT go in actions — no exceptions, including pull_forward.
 2. MEMO-DONE LAW: the Mind's GPU-FIRST queue and STANDING RULES memos are authoritative state. Any item those memos mark DONE (with receipt) is BANNED from actions until a NEW live-open artifact contradicts the memo. Banned as of this amendment: GATE-11 (done d4fc33b0d), M6 reconciliation (done 6e10bc122), grammar-triple repair (5ed692d), octeti/bits ledgers (1a09a22ec/244979632), final lint chain ledgers (042fde289), fold 955569d11 (already-on-main 4dc193d1b), hand-32 AHEAD-1 (packet clear).
 3. GIT-TRUTH LAW: before citing any repair/regen as "in flight" or "stuck", check `git log --oneline -20` for its landing commit. A landed commit means DONE, regardless of what a prior mail said.
 4. SELF-DEFECT STUB: if your own re-check finds any cited item was already DONE, your tick stub MUST open with `defective_tick: <item>` and the tick files nothing else.

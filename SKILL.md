@@ -153,6 +153,26 @@ infrastructure is still live**, not from “a summary appeared.”
 | **Warm boot** | **Mind only** | Same Mind conversation after **compaction** (or equivalent head-context loss) while children/loops should still be running | Reorient; **required** Auditor + CTO reacquaintance; spawn/re-arm seats/loops only on proven gaps |
 | **Unit resume** | Worker seats only (Hand, Auditor, Planner, Triage, Head, Hater, Cadence) | That seat compacted or lost mid-unit context | Never runs Mind management |
 
+**Both Mind boot modes start with one command: `vivi boot`.** It prints the
+project frame in a single read — seat bindings against observed process state,
+declared cadences and their silence, unabsorbed mail, open handles with
+verdicts, registered goals with register tallies, memos, charter heads, and the
+undispatched backlog already sliced for dispatch. It is read-only, stateless,
+and idempotent, so re-running it is free and two runs are comparable. **Do not
+re-derive its sections by hand.** The individual `vivi board` / `vivi mail
+list` / `vivi memo list` / `vivi role list` reads it replaces appear below only
+to say what the digest covers.
+
+Three parts of the frame are not Vivi's to know, and arrive through project
+probes declared in the mailspace config. Where a project declares none, boot
+reports the weaker fact it can prove and the manual check still stands:
+
+| Frame part | Why Vivi cannot own it | Without a probe |
+|---|---|---|
+| Harnessed seat liveness | An OS pid is not a valid liveness signal for a subagent seat | Seats print their stored binding and read `unverified`; count live processes yourself (Rule 2) |
+| Armed scheduler list | Cadence and silence are Vivi's; the host's job list is not | The loops section shows declared cadence and silence; check the scheduler yourself |
+| Git dirt and ancestry | Vivi does not read repositories | Scan `git status` yourself; handle `stale` verdicts stay unavailable |
+
 **Self-test (one line):**
 
 - **I am Mind** if I own the operator conversation and may spawn seats / arm loops.
@@ -175,10 +195,11 @@ mechanical; do not over-process it.
 **Do not use Cold boot for ordinary Mind compaction** when children and
 schedulers should still be up — that is [Warm boot](#warm-boot-mind-only-post-compaction).
 
-1. **Orient.** Read the board (`vivi board`), Mind mail
-   (`vivi mail list --for mind`), memos (`vivi memo list --for mind`), armed
-   host loops, and the role roster (`vivi role list`). Establish
-   what was open when the last session ended.
+1. **Orient with `vivi boot`.** One read establishes what was open when the
+   last session ended: seats, declared cadences, unabsorbed mail, open handles
+   with verdicts, goals with register tallies, memos, charter heads, and the
+   backlog sliced for dispatch. Re-run it rather than re-reading any of those
+   surfaces by hand.
 2. **Absorb and cleanup Mind paper (required on Cold boot).** A true restart
    leaves stale Mind inbox, memos, and Mind-owned board clutter that lie about
    the live world (dead `host_task_id`s, session-local notes, already-integrated
@@ -187,8 +208,8 @@ schedulers should still be up — that is [Warm boot](#warm-boot-mind-only-post-
    Hand/Planner/Auditor spawn debt.
 
    **Absorb (Mind inbox):**
-   - List unread / unabsorbed Mind mail (`vivi mail list --for mind`, plus any
-     cycle intake still showing inbox).
+   - The unabsorbed-mail section of `vivi boot` is this list. Work it top to
+     bottom and re-run boot when you need it refreshed.
    - For each item: read once (`vivi mail show`), integrate any still-material
      signal into current posture (or a successor task/need), then
      `vivi mail absorb --for mind <handle> [--note '…']`.
@@ -220,10 +241,10 @@ schedulers should still be up — that is [Warm boot](#warm-boot-mind-only-post-
    (or an explicit operator hygiene request).
 3. **Dispatch registry triage over the backlog.** A restart is the moment paper
    written in a previous world must be re-confirmed against a tree that moved
-   during dormancy. If the project defines a registry-triage seat, inventory
-   the registered backlog — `vivi want list`, `vivi need list`,
-   `vivi goal list` — slice it (~8–12 items per seat, mixed kinds are fine),
-   file one task per slice, and spawn those seats. The seat establishes, against
+   during dormancy. If the project defines a registry-triage seat, `vivi boot`
+   has already inventoried the backlog and sliced it into seat-sized groups in
+   its triage section, leaving out blocked and stale items. File one task per
+   slice and spawn those seats. The seat establishes, against
    the live repo, whether each item's claim is still true and whether its
    requirements are present; it decides no architecture, scope, priority, or
    merit. **Spawn async and integrate on a later Mind turn** — triage verdicts
@@ -231,7 +252,9 @@ schedulers should still be up — that is [Warm boot](#warm-boot-mind-only-post-
    gate (a need-definition review) is asked to spend tokens, and before any want
    is promoted into a need. A project without that seat skips this step and
    carries the backlog re-check as ordinary work.
-4. **Inventory execution state (Rule 2).** On a **true restart**, prior
+4. **Inventory execution state (Rule 2).** The seat section of `vivi boot` is
+   the stored-binding half of this inventory; without a probe it cannot see
+   harness processes, so count live ones yourself. On a **true restart**, prior
    subagent processes are gone: every open harnessed task is spawn debt until
    resumed. Count live processes separately from open handles.
 5. **Scan git dirt and classify.** `git status --porcelain` across the repos
@@ -240,7 +263,10 @@ schedulers should still be up — that is [Warm boot](#warm-boot-mind-only-post-
    the interrupted owner's, not foreign dirt. Do not erase or commit it.
 6. **Reconcile committed-but-unclosed.** A unit whose code landed as a commit
    but whose task is still open and whose closeout mail never arrived is
-   half-finished: finish the tail the assignment named, then close.
+   half-finished: finish the tail the assignment named, then close. A probe
+   that checks git ancestry already reports these as `stale` handle verdicts in
+   the boot digest; where none exists, find them by reading open handles
+   against `git log`.
 7. **Recover the "why" from transcripts.** The task body records the *what*;
    the prior sessions hold the *why*. If the workspace has a transcript search
    tool, use it with distinctive handles: task subject words, task handle ids,
@@ -256,7 +282,9 @@ schedulers should still be up — that is [Warm boot](#warm-boot-mind-only-post-
    order; do not dispatch two seats into the same dirty tree at once.
 9. **Loops.** The only scheduled loop is `cadence_tick` (see
    [Cadence](#cadence)). It is **off by default**: the Mind does not arm or
-   re-arm it. Verify the host's armed-loop list against the current Mind memo of the
+   re-arm it. The loops section of `vivi boot` is the Vivi half — each role's
+   declared cadence and its current silence. The armed list is the host's, so
+   check the scheduler against the current Mind memo of the
    one `cadence_tick` host task id (rewritten in step 2 if the old map was
    cleaned) only to record what is actually live. A loop claimed in the memo
    but absent from the scheduler is **disabled, not broken** — record it and
@@ -293,23 +321,28 @@ chat summary.
    and the Mind loop. Full skill body is **not** re-injected by compaction;
    skill *names* are not enough. Re-read this `SKILL.md` (or load the skill)
    before acting on board claims.
-2. **Orient on the board** — `vivi board`, Mind mail (including unread
-   cadence mail), memos (`vivi memo list --for mind`; **show** memos that
-   carry ops state such as the `cadence_tick` id / last auditor or CTO tips),
-   `vivi role list`. Observe; do not replan the campaign or re-lower goals.
+2. **Orient with `vivi boot`** — one read replaces the board, mail, memo, and
+   roster commands and adds seat bindings, cadence silence, goal register
+   tallies, and the triage slices. **Show** the memo holding current ops state
+   (the `cadence_tick` id, last auditor or CTO tips) when its one-line subject
+   is not enough. Observe; do not replan the campaign or re-lower goals.
    A goal/campaign status that lags landed work is Mind bookkeeping to
    correct (Rule 1), not replanning.
 3. **Inventory execution state (Rule 2).** Re-verify every claimed in-flight
-   seat has a live subagent. Do **not** re-spawn seats that are already live.
-4. **Armed loops** — confirm expected loop ids from the Mind memo against
+   seat has a live subagent — the seat section of `vivi boot` reports the
+   stored binding, which is not proof of a process. Do **not** re-spawn seats
+   that are already live.
+4. **Armed loops** — `vivi boot` reports the Vivi half (declared cadence and
+   silence); confirm expected loop ids from the Mind memo against
    the host's scheduler list. Loops are **off by default**: a missing loop
    is the expected state, not a defect. Only explicit operator enablement
    justifies a create, serially. Some hosts overwrite earlier jobs if
    several schedulers are created in one parallel tool batch — create one
    at a time.
-5. **Git dirt A/B/C** — orientation only. Do not implement during these
-   boot steps (Rule 1). After resume, [Direct](#operating-modes) continues
-   product work; Mind mode still does not.
+5. **Git dirt A/B/C** — orientation only, and only where the project probes
+   it; otherwise scan `git status` across the managed repos. Do not implement
+   during these boot steps (Rule 1). After resume, [Direct](#operating-modes)
+   continues product work; Mind mode still does not.
 6. **Compact summary = recent annex only** — prefer Current Work / last
    actions / open constraints not already on the board. Treat re-injected
    early `user_query`, Primary Request, and “All User Messages” as
@@ -489,7 +522,9 @@ or queue binding. Do not put assignment text in the spawn prompt.
 **Execution state:** running work has a verified live process attached to its
 handle. An executable open handle without a live owner is spawn debt. When a
 worker exits, later work requires a fresh spawn or intentional harness attach.
-Never infer liveness from the board, role capacity, or a prior process.
+Never infer liveness from the board, role capacity, a `vivi boot` seat row, or
+a prior process. A seat row reports the stored binding, and a subagent-harness
+seat reads `unverified` because an OS pid is not a signal for one.
 
 One process owns one handle. Workers load that handle, not the class board.
 When finished, they close or reply through the same handle. Record decisions
@@ -1038,8 +1073,10 @@ The law is the same for both.
 
 **The rules:**
 
-1. **The picture comes from named bounded reads.** `vivi step --json` is
-   the intake; `vivi board --process --graph --json` when liveness matters;
+1. **The picture comes from named bounded reads.** `vivi boot` is the frame
+   read — at boot, at reorientation, or any time the whole picture is the
+   question; `vivi step --json` is the intake;
+   `vivi board --process --graph --json` when liveness matters;
    `vivi mailspace watch --once --write-cursor` for deltas; `vivi task show`
    on the one handle selected for work. Raw dumps and graph exports are
    audit surfaces, not loop intake. Reading a raw listing where a bounded
@@ -1407,11 +1444,12 @@ Record `enabled: false`. Do not recreate it without operator enablement.
 ### A tick
 
 1. Load charter + previous cadence→mind mail (if any).
-2. Read `vivi board --process --json`, `vivi role list --json`, open
-   needs and wants, Mind memo list (read-only), `vivi mail list --for mind
-   --folder inbox --status unabsorbed` (count the pile; `--json` is fine),
-   `vivi goal list --json` (the campaign working set), and the project
-   occupancy signal if one exists.
+2. Read `vivi boot`. It carries the board, every role's declared cadence and
+   silence (the firing schedule the due checks below need), open needs and
+   wants, Mind memos, the unabsorbed count, the registered campaign working
+   set, and the project's probe facts — occupancy, where the project declares
+   one. Reach for `vivi role list --json` only when you need role fields the
+   digest does not print.
 3. Score the [process catalog](#process-catalog) against live evidence,
    including the `pull_forward` lens over registered goals; every audit handle
    whose verdict is `block_range` or `block_ship` and whose blocked paths have no
@@ -1691,6 +1729,9 @@ identity tokens such as `mind`, `operator`, `hand`, `planner`, `auditor`,
 `cadence`, and `head-ceo`. Numbered names are legacy addresses.
 
 ```bash
+# The project frame in one read (Mind boot, reorientation, and Cadence's tick)
+vivi boot --project "$ROOT"
+
 # List open items for a class role (Mind view — workers do not do this)
 vivi task list --for hand --project "$ROOT" --status open
 vivi need list --for mind --project "$ROOT" --status open   # priority backlog
