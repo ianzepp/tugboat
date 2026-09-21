@@ -168,7 +168,7 @@ Skip a row when the window is empty.
 | `test_range` | Last test run older than the `test` role cadence **and** new commits on managed mains since that run — or a change burst (≥ ~10 commits) since the last run | File + spawn the test lane (stages 3–4) |
 | `docs_range` | Merges landed on managed mains since the last docs pass (docs cadence, if set, elapsed) | File + spawn the docs lane (zombie-docs scoped to merged surfaces) |
 | `canary_range` | Last canary older than the `canary` role cadence **and** main moved since that run **and** last lint + test runs on current main were green — rolling window: red lint/test at the mark hold the canary, they do not restart the clock | File + spawn the canary lane (disposable tag, pipeline claims only) |
-| `memo_hygiene` | Stale or duplicated Mind memos (dead loop ids, superseded posture) | List handles to delete |
+| `memo_hygiene` | Mind memos that are superseded, duplicated, or carrying short-term state (a handle, a dependency, a loop id, a task status) | List handles to delete |
 | `mail_hygiene` | Unabsorbed Mind inbox count ≥ 20 (`vivi mail list --for mind --folder inbox --status unabsorbed`) | Suggest Mind absorb unneeded mail (cite count + a few sample subjects). Do not absorb. |
 | `polish` | Needs clear, READY campaign work clear, polish interval elapsed | Suggest analyzer only |
 

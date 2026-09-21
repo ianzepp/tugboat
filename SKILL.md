@@ -214,17 +214,16 @@ schedulers should still be up — that is [Warm boot](#warm-boot-mind-only-post-
      signal into current posture (or a successor task/need), then
      `vivi mail absorb --for mind <handle> [--note '…']`.
    - Absorb is read + acknowledge for cycle bookkeeping; it is **not** durable
-     memory. Anything that must survive goes into a **fresh** memo or open
-     handle.
+     memory. A durable ruling or posture statement goes into a **fresh** memo;
+     anything that is work goes into an open handle.
 
    **Cleanup (Mind memos / Mind-owned tasks / needs / wants):**
    - **Memos:** drop superseded Mind memos (`vivi memo delete --for mind
-     <handle>`). Typical garbage: old `reminder_loops` maps, dead
-     `cadence_tick` host task ids, obsolete posture/session notes, duplicated
-     ops state. Keep or rewrite **one** current durable memo when ops state is
-     still true (e.g. the one `cadence_tick` id after re-arm, campaign posture
-     that still matches the board). Prefer one accurate memo over a stack of
-     partial ones.
+     <handle>`). Anything carrying a handle, a loop id, a task status, or
+     another record's in-flight state is defective paper — delete it and read
+     the board, graph, or scheduler instead. What survives is long-term memory:
+     standing rulings, campaign constants, and posture that still matches the
+     board. Prefer one accurate memo over a stack of partial ones.
    - **Mind-owned tasks/needs/wants:** close or drop only items that are
      **stale paper for the Mind seat itself** (session-local checklists,
      completed-but-unclosed chores, needs already done or superseded, wants
@@ -233,9 +232,10 @@ schedulers should still be up — that is [Warm boot](#warm-boot-mind-only-post-
      priority needs and valid want backlog. **Do not** close open Hand,
      Planner, Auditor, Hater, or Head work that is still valid spawn debt —
      those resume in later steps.
-   - **Cross-check:** if a Mind memo or task claims a live process, loop id, or
-     in-flight seat and Cold boot cannot prove it, treat the claim as false and
-     clean the claim; do not invent continuity to save the paper.
+   - **Cross-check:** a memo or task claiming a live process, loop id, or
+     in-flight seat is false paper whatever the truth turns out to be, because
+     no memo records liveness. Clean the claim and read the authority; do not
+     invent continuity to save the paper.
 
    Warm boot does **not** run this mass absorb/cleanup pass — only Cold boot
    (or an explicit operator hygiene request).
@@ -283,12 +283,11 @@ schedulers should still be up — that is [Warm boot](#warm-boot-mind-only-post-
 9. **Loops.** The only scheduled loop is `cadence_tick` (see
    [Cadence](#cadence)). It is **off by default**: the Mind does not arm or
    re-arm it. The loops section of `vivi boot` is the Vivi half — each role's
-   declared cadence and its current silence. The armed list is the host's, so
-   check the scheduler against the current Mind memo of the
-   one `cadence_tick` host task id (rewritten in step 2 if the old map was
-   cleaned) only to record what is actually live. A loop claimed in the memo
-   but absent from the scheduler is **disabled, not broken** — record it and
-   do not recreate it. Only explicit operator enablement justifies a create.
+   declared cadence and its current silence. The armed list is the host's, and
+   the scheduler is its only authority: nothing about a loop goes in a memo. A
+   loop absent from the scheduler is **disabled, not broken** — the default
+   state, so record it and do not recreate it. Only explicit operator
+   enablement justifies a create.
 10. **Report and resume the loop.** Give the operator a short orientation: what
    was absorbed/cleaned, what triage was dispatched, what remains open, what is
    dirty, what was resumed. Then proceed to the normal Mind loop.
@@ -323,9 +322,9 @@ chat summary.
    before acting on board claims.
 2. **Orient with `vivi boot`** — one read replaces the board, mail, memo, and
    roster commands and adds seat bindings, cadence silence, goal register
-   tallies, and the triage slices. **Show** the memo holding current ops state
-   (the `cadence_tick` id, last auditor or CTO tips) when its one-line subject
-   is not enough. Observe; do not replan the campaign or re-lower goals.
+   tallies, and the triage slices. **Show** a memo the digest lists when its
+   one-line subject is not enough to judge whether it is still true. Observe;
+   do not replan the campaign or re-lower goals.
    A goal/campaign status that lags landed work is Mind bookkeeping to
    correct (Rule 1), not replanning.
 3. **Inventory execution state (Rule 2).** Re-verify every claimed in-flight
@@ -333,8 +332,8 @@ chat summary.
    stored binding, which is not proof of a process. Do **not** re-spawn seats
    that are already live.
 4. **Armed loops** — `vivi boot` reports the Vivi half (declared cadence and
-   silence); confirm expected loop ids from the Mind memo against
-   the host's scheduler list. Loops are **off by default**: a missing loop
+   silence); the host's scheduler list is the only authority for what is
+   actually armed. Loops are **off by default**: a missing loop
    is the expected state, not a defect. Only explicit operator enablement
    justifies a create, serially. Some hosts overwrite earlier jobs if
    several schedulers are created in one parallel tool batch — create one
@@ -355,8 +354,9 @@ chat summary.
    stop-the-line gate on Hands (Rule 5).
 
    **Shared window pin (Mind does this first):**
-   - `base` = last stored auditor/CTO tip from the Mind memo, else session /
-     known baseline, else a short recent range the Mind can name honestly.
+   - `base` = the range base named in the last aggregate-audit handle on the
+     board, else session / known baseline, else a short recent range the Mind
+     can name honestly. The handle carries the range; no memo mirrors it.
    - `head` = current tip(s) of managed repos (committed state only for the
      Auditor freeze). In-flight Hand WIP stays out of the frozen range unless
      already landed.
@@ -364,8 +364,9 @@ chat summary.
      of new commits, still run a **status reacquaintance**: current tip +
      active write surfaces / phase intent from the board — the point is to
      re-ground after head-context loss, not only to score a delta.
-   - Record `warm_boot_reacquaintance: <iso-time>` and the pinned `base`/`head`
-     in the Mind memo when filing.
+   - The pinned `base`/`head` goes in the dispatched task body, where the
+     Auditor reads it. The handle on the board is the record; do not mirror the
+     pin into a memo.
 
    **Auditor (tactical completion honesty):**
    - Dispatch one Auditor (fan out to more only if the window is wide
@@ -426,9 +427,9 @@ ordinary cycle hygiene; do **not** run the full Cold-boot paper-cleanup pass.
 
 **Escalate Warm → Cold when proof fails**, for example:
 
-- expected `host_task_id` loops are missing **while the operator had explicitly
-  enabled them** (loops are otherwise off by default — an absent loop is
-  expected, not a failure signal)
+- a loop the operator explicitly enabled is missing from the host scheduler
+  (loops are otherwise off by default — an absent loop is expected, not a
+  failure signal)
 - claimed in-flight seats have **no** live process **and** the situation is a
   host/session death, not ordinary Rule 2 spawn debt on an open bag
 - brand-new session or no Mind continuity
@@ -897,6 +898,27 @@ The Mind uses the full role system through Vivi:
 
 Hands, Haters, and Cadence do not use memos. Vivi permits memos for every identity, but memos are reserved for durable context used by the Mind and Heads. Cadence cites existing Mind memos for cleanup; it does not file its own. A Hater's ignorance of durable internal context is part of the test.
 
+**A memo is long-term memory, not a tracking sheet.** It carries what stays true across sessions and cannot be re-derived: standing rulings (the operating mode, operator holds), campaign constants, posture that still matches the board, and role context a seat can read nowhere else.
+
+It carries **no** short-term state. Specifically, never:
+
+| Never in a memo | Authority to read instead |
+|---|---|
+| Handles, or which handle depends on which | The backlog graph — `vivi graph show`, `vivi graph ready`, `vivi board --graph` |
+| Which tasks are in flight, or which seats are live | The board, plus a live-process check (Rule 2) |
+| Loop or scheduler ids, intervals, `last_fired`, `enabled` | The host scheduler |
+| Status or completion state for work | The handle itself — open, closed, absorbed |
+| Timestamps of in-flight events (boot times, dispatch times) | The handle, or the audit range it belongs to |
+
+Recording a dependency list or a set of in-flight handles in a memo is the
+clearest form of this defect, and it is always unnecessary: the graph holds the
+dependencies, the board holds the open work, and `vivi boot` prints both at
+startup. A memo whose subject names a handle, a loop id, or a task status is
+defective paper — delete it and read the authority. A memo is also not the
+place to work around a surface that does not exist: if the dependency or status
+you want is on neither the board nor the graph nor a probe, that is a missing
+surface to raise, not a memo to write.
+
 ### Model P and S (Mind spawn pick)
 
 A role's Vivi `model` is a **band** (`P2-S0`), not a provider slug.
@@ -939,8 +961,8 @@ for cloud slugs. It switches new spawns to the **host's configured local
 model**.
 
 1. Each Mind turn that will spawn, and Cold/Warm boot, do one short
-   network check if the host provides one. Record `state` in the Mind
-   memo when it changes.
+   network check if the host provides one. The result is per-turn state and
+   belongs nowhere but the turn — do not record it in a memo.
 2. `state=offline` → every new spawn uses the host's local model. Same
    handle, same write scope. Accept slower decode. If no local model is
    available, say so and do not pretend work is running.
@@ -1088,10 +1110,11 @@ The law is the same for both.
    body over a cap lives on its Vivi handle and is read by the seat that
    needs it.
 3. **One posture memo, rebuilt on the watermark — never at the window
-   edge.** The card carries only what is genuinely Mind-held: the rebuild
-   watermark, last aggregate-audit tips per repo, operator holds, armed
-   loop ids. Live handles, branches, and readiness are the Picture and do
-   not belong on the card; they are re-derived each pass. Riding the
+   edge.** The card carries only what is genuinely Mind-held and durable: the
+   standing posture, operator holds, campaign constants, and the memo's own
+   rebuild watermark. Live handles, branches, readiness, audit tips, and armed
+   loop ids are the Picture and do not belong on the card; they are re-derived
+   each pass from the board, the graph, and the scheduler. Riding the
    context window to its edge turns a bounded rebuild into an expensive
    one on every host that has compaction.
 
@@ -1428,18 +1451,14 @@ Do not create `mind_wake`, `auditor_range`, `cto_range`, or `polish_analyzer`
 loops beside this one. Do not create multiple scheduler jobs in one
 parallel tool batch; some hosts overwrite earlier jobs.
 
-Mind records the one id (Mind memo, not a cadence memo):
+The host scheduler is the only record of this loop — its id, its interval, and
+whether it is armed. Nothing about it goes in a memo: a `cadence_tick` entry
+in a memo is defective paper, and `vivi boot`'s loops section already reports
+the declared cadence and its silence.
 
-```yaml
-cadence_tick:
-  interval: 15m
-  host_task_id: <scheduler-id>
-  last_fired: <iso-time>
-  enabled: false
-```
-
-A memo-claimed loop absent from the scheduler is **disabled, not broken**.
-Record `enabled: false`. Do not recreate it without operator enablement.
+A loop absent from the scheduler is **disabled, not broken** — the default
+state, since the loop is off by default. Do not recreate it without operator
+enablement.
 
 ### A tick
 
@@ -1567,7 +1586,7 @@ by reading.
 | `auditor_range` | Last **aggregate audit** tip older than ~1h **and** new commits on managed mains | File + spawn auditor (see below). Delivery audits, re-reviews, and verification reports do not advance this tip; only an aggregate implementation audit does. |
 | `cto_range` | Last CTO tip older than ~1h **and** (new main merges **or** `head-cto` schedule overdue) | File + spawn `head-cto` |
 | `security_review` | Last security pass older than the CSO cadence **and** (new surface or overdue `head-cso`) | File + spawn `head-cso` (or the project's security seat) |
-| `memo_hygiene` | Stale or duplicated Mind memos (dead loop ids, superseded posture) | List handles to delete; Mind deletes |
+| `memo_hygiene` | Mind memos that are superseded, duplicated, or carrying short-term state (a handle, a dependency, a loop id, a task status) | List handles to delete; Mind deletes |
 | `mail_hygiene` | Unabsorbed Mind inbox count ≥ 20 (`vivi mail list --for mind --folder inbox --status unabsorbed`) | Suggest Mind absorb unneeded mail (cite count + a few sample subjects). Do not absorb. Do not file a need. |
 | `polish` | Needs clear, READY campaign work clear, polish interval elapsed | Suggest analyzer only |
 
@@ -1576,9 +1595,11 @@ by reading.
 Mind runs these under normal Tugboat rules after it accepts the mail (or on
 Warm boot / operator request). Cadence does not run them.
 
-**`auditor_range`.** Pin `base` = the last **aggregate audit** tip (Mind memo
-or the last implementation-audit handle — not the last auditor mail); `head` = current committed tip. Inventory paths. Dispatch **one to
-four** Auditors by path family, crate, or risk cluster. File
+**`auditor_range`.** Pin `base` = the last **aggregate audit** tip — read it
+from the last implementation-audit handle on the board, never from the last
+auditor mail and never from a memo; `head` = current committed tip. Inventory
+paths. Dispatch **one to four** Auditors by path family, crate, or risk
+cluster. File
 `audit_mode: evidence_honesty`, exact `base`/`head`, paths, receipts,
 `re_execute: none` unless a named `block_ship`-class reason needs one
 targeted command; then **spawn**. Integrate `clean_pass` / `residual` /
@@ -1802,13 +1823,14 @@ vivi task send ... --depends-on <handle>               # also need send / want s
 vivi graph activate <handle> --task <handle> --project "$ROOT"   # dispatch binding; bare id = backlog
 vivi need bind <need-handle> <task-handle> --project "$ROOT"     # lowering join
 
-# Memo policy: Mind and Heads use memos; Hands, Haters, and Cadence do not
+# Memo policy: long-term memory for the Mind and Heads only — never handles,
+# dependencies, loop ids, or in-flight status (Hands, Haters, Cadence: no memos)
 vivi memo list --project "$ROOT" --for mind
 vivi memo save --project "$ROOT" --for mind \
-  --subject 'ops: posture growth; loop 5m' \
-  --body 'true operator blocks only'
+  --subject 'posture: growth campaign; operator holds' \
+  --body 'true operator blocks only; release stays operator-run'
 vivi memo search --project "$ROOT" --for mind "keyword"
-vivi memo delete --project "$ROOT" --for mind <handle>   # Cold-boot cleanup of superseded memos
+vivi memo delete --project "$ROOT" --for mind <handle>   # Cold-boot cleanup: drop superseded or tracking-style memos
 
 # Absorb Mind inbox mail after integrate (Cold boot step 2; also ordinary cycle hygiene)
 vivi mail absorb --project "$ROOT" --for mind <handle> [--note '…']
@@ -1832,7 +1854,7 @@ vivi task dump --project "$ROOT" --status open
 - **Role hierarchy:** Mind, Planner, Hand, Auditor, Triage (project-defined registry reconciliation), optional Hater, Head, Cadence, and `operator@`. A project may add specialized seats; Tugboat does not assume they exist.
 - **Model P + S:** Vivi `model` is a band (`P2-S0`). Mind resolves it to a slug from the host's model inventory. Not planning P1/P2/P3.
 - **Offline fallback:** WAN down → new spawns use the host's local model. Recheck each Mind turn. Do not interrupt in-flight seats.
-- **Memos:** durable context for the Mind and Heads. Cadence does not file them.
+- **Memos:** long-term memory for the Mind and Heads only — standing rulings, campaign constants, durable posture. Never handles, dependency lists, loop ids, or in-flight status: the graph, the board, and the scheduler are those authorities. Cadence does not file them.
 - **Shared-workspace rules:** classify dirt A/B/C and never erase foreign work.
 - **Audit loop:** plan → delivery audit → implement and unblock → aggregate audit at every required breakpoint (goal and sub-goal close, wave or phase freeze, risk gate, interval backstop, Warm boot), never per unit → close gated on that verdict or a recorded waiver → accept or repair only blocking findings, scoped to the boundary they name.
 - **Cadence:** one `cadence` seat and one `cadence_tick` loop. Cadence reviews
@@ -1909,7 +1931,8 @@ vivi task dump --project "$ROOT" --status open
 - **Compact Primary Request as current work:** Restarting early-session user text after compact while board and git show different mid-stream state. Compact annex is recent only; Vivi + git + Warm/Unit resume own truth.
 - **Read-only spawn for shell work:** Spawning an Auditor, Planner, Hand, or Head without shell access when the task needs `vivi`, git, or test commands. The seat stalls instead of working. Spawn with full tools; reserve read-only for tool-free inspection.
 - **N process loops beside cadence:** Do not arm `mind_wake` / `auditor_range` / `cto_range` / `polish_analyzer`. One `cadence_tick`. Never create multiple scheduler jobs in one parallel tool batch.
-- **Re-arming cadence on boot:** Treating a memo-claimed `cadence_tick` missing from the scheduler as a defect and recreating it without operator enablement. The loop is **off by default**; a missing loop is the expected state.
+- **Re-arming cadence on boot:** Recreating a `cadence_tick` that is absent from the scheduler without operator enablement. The loop is **off by default**; a missing loop is the expected state, and the scheduler — never a memo — says whether it is armed.
+- **Tracking work in a memo:** Recording handles, handle dependencies, which tasks are in flight, or loop ids in a Mind memo so a later turn can "remember" them. The graph holds dependencies, the board holds open work, `vivi boot` prints both at startup, and a memo that names a handle or a status is defective paper. Memos are long-term memory.
 - **Polish analyzer implements:** Analysis suggests paths; only Mind-filed Hand polish tasks may edit.
 - **Serializing on a stage number:** The Mind treats "we are in Stage 2" as a reason not to start later-stage or sibling-track work whose named dependencies are already met. Stage order is routing, not a gate. Cadence `pull_forward` exists to catch this.
 - **Cadence ignores registered goals:** A tick that never reads `vivi goal list` cannot see later-stage work. The working set is that list, not the open-task board alone.
