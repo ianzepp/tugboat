@@ -1843,6 +1843,84 @@ vivi mail thread <handle> --project "$ROOT"
 vivi task dump --project "$ROOT" --status open
 ```
 
+## Harness notes
+
+The protocol is harness-neutral. Hosts differ in what a spawn can carry, what a
+seat can run, and how completion reaches the Mind. This section records those
+differences per harness. Machine paths, installed tool versions, and model
+slugs belong in the host's own agent file, not here. A harness that is not
+listed follows the protocol as written and files its own notes here.
+
+### Claude (Claude Code, Agent SDK)
+
+**Seats.** A seat is an `Agent` tool call. The agent *type* is a tool set, not a
+role: a seat that files Vivi paper, runs git, or runs tests needs a full-tool
+type (`general-purpose`, or a project-defined implementation type). Read-only
+types (`Explore`, `Plan`) cannot run `vivi` or `git` and are never seats. The
+role comes from the charter the seat loads.
+
+**Spawn.** Start seats with `run_in_background: true`. The completion arrives
+as a notification on a later Mind turn: do not poll, do not hold the turn, and
+do not write a waiter loop. A loop of the form `until ! pgrep -f "<cmd>"; do
+sleep …; done` matches its own shell and never exits; wait on a pid
+(`kill -0`), a marker file, or the notification. Commands that exceed about two
+minutes are moved to the background automatically; read their output file
+instead of re-running them.
+
+**Where a seat works.** The `Agent` tool takes no working directory. A seat
+inherits the Mind's current directory at the moment of the call, so the Mind
+`cd`s into the claimed packet or lane, then spawns that one seat. Spawn one
+seat per directory, in sequence: two seats spawned in one parallel tool batch
+share one directory. The harness option `isolation: "worktree"` creates a
+worktree of the *current repository only*. It carries none of the sibling
+repositories, so gates that read a sibling (grammar ids, host runtimes,
+cross-repo test includes) cannot run there. For a multi-repository project use
+the project's packet mechanism instead; keep `isolation: "worktree"` for
+single-repository work.
+
+**Brief.** The opening prompt is the [dispatch contract](#dispatch-contract):
+role, charter, handle, stop, plus the reply and close commands for the seat. The
+assignment lives in the Vivi task body, and a long structured body is fine; Claude
+seats work well from one. A task body carries: kind, unit and the need it
+answers, the defect with the exact code or text, write scope, a proof that
+demonstrates the failing case before the fix (red, then green), `done_when`,
+`do_not`, and the report shape. Every body that describes a defect also carries
+a **check-first** clause: reproduce it on current main, and if it does not
+reproduce, or the premise is wrong, report that and stop. In practice a
+meaningful share of defect briefs rest on a wrong premise, and a seat that
+reproduces first catches it before it edits anything.
+
+**Reply and close.** `vivi mail reply <handle> --from <role> --body '…'` (the
+body flag is `--body`; a wrong flag costs a turn), then `vivi task done --for
+<role> <handle> --repo <name> --tip <sha> --verdict <v>`. A seat reports merge
+debt explicitly: a commit on a lane branch is not a landing.
+
+**Handles.** One `send` yields a created handle and a recipient copy, held by
+different identities. Claim, bind, and activate with the created handle, and
+close each copy with the identity that holds it. Binding a need to a task closes
+the need when the task is done, so a follow-up task needs `need reopen` first.
+
+**Operating mode.** Declare it in the Mind memo and keep it. A Claude Mind that
+also edits, runs gates, and resolves conflicts is in Direct whether or not it
+says so, and its context fills with logs until compaction takes the priorities
+with it. Prefer Mind mode: routing, scoping, reading receipts, and status
+bookkeeping stay in the Mind; integration, ledger regeneration, and gates go to
+a merge seat and the project's verification seats.
+
+**Concurrency.** Cap parallel seats by provider quota and by what the machine
+sustains, and write the measured cap in the host's agent file. Do not
+estimate: time the gates once and record them.
+
+**Shell quirks that cost turns.** The default shell may not split an unquoted
+variable into words (zsh): put loops and word lists in `bash -c` or use arrays.
+A heredoc carrying non-ASCII text can fail: write such scripts with the file-write
+tool and a coding header. Compound commands that chain a check after a hung
+step keep the hang: bound every wait.
+
+**Compaction.** The compact summary is an annex, not the record. After it, run
+Warm boot from Vivi (`vivi boot`), and keep `operating_mode`, posture, and
+standing rulings in the Mind memo so they survive.
+
 ## What Tugboat keeps
 
 - **Boot modes:** Cold boot (true restart — includes Mind absorb + cleanup of stale memos/tasks/etc. **and registry triage of the backlog**), Warm boot (Mind-only post-compaction reorient **plus required Auditor + CTO reacquaintance**), Unit resume (workers). Compaction is role-blind; seats pick the mode by identity + live infrastructure.
@@ -1878,6 +1956,7 @@ vivi task dump --project "$ROOT" --status open
 - **Blocker routing (Rule 4):** recoverable blockers become live Hand, Planner, Head, or project-integration assignments immediately; block only their exact dependency boundary and keep unaffected seats moving. A fleet stop requires a proven operator/external deadlock, not uncertainty.
 - **Seat saturation (Rule 5):** dispatch instead of idling when honest work exists. Fill every pool (planning, implementation, audit) while READY work exists.
 - **Head boundary:** Heads advise. They do not lower goals or implement.
+- **Harness notes:** per-harness differences (what a spawn carries, where a seat works, how completion arrives) live in [Harness notes](#harness-notes), kept out of the protocol body; machine specifics stay in the host's agent file.
 - **Cadence boundary:** Cadence advises Mind via mail. It does not dispatch, file memos, or spawn seats.
 - **Hater boundary:** Haters expose hostile first impressions. They do not decide merit, create tasks, or gate work.
 
