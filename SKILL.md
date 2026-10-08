@@ -1890,6 +1890,14 @@ cross-repo test includes) cannot run there. For a multi-repository project use
 the project's packet mechanism instead; keep `isolation: "worktree"` for
 single-repository work.
 
+**Model and effort.** The `Agent` call takes a `model` but no effort argument.
+A seat's effort comes from its agent definition's `effort:` frontmatter, and
+from the session's effort when the definition sets none. Thinking is inherited
+from the session. A [band](#model-p-and-s-mind-spawn-pick) therefore resolves to
+an agent type plus a model alias, and a per-task `band:` override selects among
+agent types. A seat spawned from a definition that pins nothing runs at the
+Mind's own model and effort: pin the definitions the fleet uses.
+
 **Brief.** The opening prompt is the [dispatch contract](#dispatch-contract):
 role, charter, handle, stop, plus the reply and close commands for the seat. The
 assignment lives in the Vivi task body, and a long structured body is fine; Claude
