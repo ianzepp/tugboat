@@ -941,15 +941,24 @@ many live seats on one provider) are different constraints: the first changes wh
 slug you pick, the second only how many, and neither is a reason to leave dispatchable
 work undispatched.
 
-| Role | Band |
-| --- | --- |
-| Mind | `P0-S2` |
-| Head, Planner | `P1-S2` |
-| Auditor | `P1-S1` |
-| Triage | `P2-S1` |
-| Hand, test, e2e, merge, release, canary | `P2-S0` |
-| Lint, docs, website, Hater | `P3-S0` |
-| Cadence | `P4-S0` |
+| Role | Band | Per-task `band:` |
+| --- | --- | --- |
+| Mind | `P1-S2` | none |
+| Head | `P0-S2` | none — always P0 |
+| Planner | `P1-S2` | `P2` for a low-complexity requirement |
+| Auditor | `P1-S1` | `P0` for a complex or risky range |
+| Triage | `P2-S1` | none |
+| Hand, test, e2e, merge, release, canary | `P2-S0` | `P1` for a complex or architectural unit, or after a failed unit |
+| Lint, docs, website, Hater | `P3-S0` | `P2` if the surface is a product gate |
+| Cadence | `P4-S0` | none |
+
+A band names a model **at an effort**, not a model: the same model at low and
+at xhigh sits in different P bands, so resolve a band to a slug *and* effort
+from the host's inventory. The role band is the default. The Mind overrides it
+for one assignment with an optional `band:` field in the task body: a bare P
+(`band: P1`) keeps the role's S, a full band (`band: P0-S2`) sets both. The
+Mind sets it when filing, from the unit's complexity; the seat never chooses
+its own. The Mind and Heads take no override.
 
 Using a mid-P high-decode slug as a Head is a quota exception, not the
 Head band. Project bans live in that project's agents doc.
@@ -1177,6 +1186,9 @@ A Hand's task body is labeled fields, not a narrative and not a spawn brief:
 - `write_scope`: files this logical change may touch;
 - **the edit**: which function/seam changes, in one or two lines — not a research question;
 - `done_when`: acceptance for **this** change;
+- optional `band`: a model-band override for this unit (`P1` for a complex
+  unit; see [Model P and S](#model-p-and-s-mind-spawn-pick)) — omit it for the
+  role default;
 - optional `sanity`: one focused check of the touched surface;
 - `do_not`: surfaces and units this bag must not touch;
 - optional `check-first`: if already true, close with evidence.
@@ -1930,7 +1942,7 @@ standing rulings in the Mind memo so they survive.
   [Vivi skill](https://github.com/ianzepp/vivarium/blob/main/skills/vivi/SKILL.md).
   Mind drains needs before wants; dispatch of work = task + spawn.
 - **Role hierarchy:** Mind, Planner, Hand, Auditor, Triage (project-defined registry reconciliation), optional Hater, Head, Cadence, and `operator@`. A project may add specialized seats; Tugboat does not assume they exist.
-- **Model P + S:** Vivi `model` is a band (`P2-S0`). Mind resolves it to a slug from the host's model inventory. Not planning P1/P2/P3.
+- **Model P + S:** Vivi `model` is a band (`P2-S0`) — a model at an effort, never a model alone. Mind resolves it to a slug and effort from the host's model inventory, and may override the role band per task with `band:`. Not planning P1/P2/P3.
 - **Offline fallback:** WAN down → new spawns use the host's local model. Recheck each Mind turn. Do not interrupt in-flight seats.
 - **Memos:** long-term memory for the Mind and Heads only — standing rulings, campaign constants, durable posture. Never handles, dependency lists, loop ids, or in-flight status: the graph, the board, and the scheduler are those authorities. Cadence does not file them.
 - **Shared-workspace rules:** classify dirt A/B/C and never erase foreign work.

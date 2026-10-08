@@ -48,17 +48,17 @@ charter leaves for the project to fill in.
 
 | Charter | Seat | Band | Placeholders |
 | --- | --- | --- | --- |
-| `mind.md` | mind | `P0-S2` | Barely a charter (a few lines): it points at the protocol and names the packet tool. The Mind's law is `SKILL.md`. |
+| `mind.md` | mind | `P1-S2` | Barely a charter (a few lines): it points at the protocol and names the packet tool. The Mind's law is `SKILL.md`. |
 | `hand.md` | hand | `P2-S0` | Packet tool; the project's language skill and idiom-audit skill; the ladder environment |
 | `planner.md` | planner | `P1-S2` | The goal-doc path convention; which ladder commands never go on a Hand |
 | `auditor.md` | auditor | `P1-S1` | The language skill and idiom lens; the validation binary |
 | `cadence.md` | cadence | `P4-S0` | The occupancy signal; the process catalog is that fleet's operations — keep `A tick`, `Citation discipline`, `Mail body`, `Refuse` |
-| `head-ceo.md` | head-ceo | `P1-S2` | The map docs; the posture dial |
-| `head-cto.md` | head-cto | `P1-S2` | The design standard named in its decision-routing section |
-| `head-cxo.md` | head-cxo | `P1-S2` | The map docs |
-| `head-cpo.md` | head-cpo | `P1-S2` | The map docs |
-| `head-cmo.md` | head-cmo | `P1-S2` | The map docs |
-| `head-cso.md` | head-cso | `P1-S2` | The product and infrastructure the threat model covers |
+| `head-ceo.md` | head-ceo | `P0-S2` | The map docs; the posture dial |
+| `head-cto.md` | head-cto | `P0-S2` | The design standard named in its decision-routing section |
+| `head-cxo.md` | head-cxo | `P0-S2` | The map docs |
+| `head-cpo.md` | head-cpo | `P0-S2` | The map docs |
+| `head-cmo.md` | head-cmo | `P0-S2` | The map docs |
+| `head-cso.md` | head-cso | `P0-S2` | The product and infrastructure the threat model covers |
 | `test.md` | test | `P2-S0` | The ladder: which stages are yours, the full-suite flag, the lane tooling |
 | `lint.md` | lint | `P3-S0` | The static gate and lint commands; the early-ladder boundary |
 | `merge.md` | merge | `P2-S0` | The integration branch, the consistency check, the merge order's dependency direction |
